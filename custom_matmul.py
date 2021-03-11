@@ -1,6 +1,7 @@
 import math
 from torch.autograd import Function
 import torch
+from fp32_flex_mul import FP32FlexMatmul
 from utils import Dtype, Stream, load_kernel, Dtype_size
 CUDA_NUM_THREADS = 1024
 
@@ -60,6 +61,8 @@ def custom_matmul(input, weight, threads, muxing):
         return NormalMatmul.apply(input, weight)
     elif threads == 2 and muxing == 1:
         return HalfMatmul.apply(input, weight)
+    elif threads == 2 and muxing == 2:
+        return FP32FlexMatmul.apply(input, weight)
     else:
         raise NotImplementedError
 
