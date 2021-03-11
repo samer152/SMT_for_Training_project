@@ -275,6 +275,22 @@ class NeuralNet:
         cfg.LOG.write(tabulate(stats, headers=stats_headers, tablefmt="grid"), date=False, terminal=(gpu_num == 0), gpu_num=gpu_num)
 
 
+    def _save_state(self, epoch, best_top1_acc, model, optimizer, scheduler, desc):
+        if desc is None:
+            filename = '{}_epoch-{}_top1-{}.pth'.format(self.arch, epoch, round(best_top1_acc, 2))
+        else:
+            filename = '{}_epoch-{}_{}_top1-{}.pth'.format(self.arch, epoch, desc, round(best_top1_acc, 2))
+        path = '{}/{}'.format(cfg.LOG.models_path, filename)
+
+        state = {'arch': self.arch,
+                 'epoch': epoch + 1,
+                 'state_dict': model.module.state_dict() if self.distributed == 1 else model.state_dict(),
+                 'optimizer': optimizer.state_dict(),
+                 'scheduler': scheduler.state_dict(),
+                 'best_top1_acc': best_top1_acc}
+
+        torch.save(state, path)
+
     def update_best_acc(self, epoch):
         if epoch >= 80 or self.save_all_states == 1:
             if self.cuda_conv:
