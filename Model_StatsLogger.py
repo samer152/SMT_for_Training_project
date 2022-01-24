@@ -24,18 +24,17 @@ def set_plot_attributes(ax, xticks, yticks, title, xlabel, ylabel):
 
 
 class Model_StatsLogger:
-    def __init__(self, threads, seed, verbose, muxing=0, _assert=False):
+    def __init__(self, compute_flavour, seed, verbose, _assert=False):
 
         self.seed = seed
-        self.threads = threads
-        self.muxing = muxing
+        self.compute_flavour = compute_flavour
         self.verbose = verbose
         self._assert = _assert
 
         self.best_top1_acc = 0
         self.best_top1_epoch = 0
 
-        self.print_verbose('Model_StatsLogger __init__() threads: {} muxing: {}'.format(threads, muxing), 1)
+        self.print_verbose('Model_StatsLogger __init__() Compute flavour: {}'.format(compute_flavour), 1)
         self.batch_time ={ 'train': self.AverageMeter('Time', ':6.3f'), 'test': self.AverageMeter('Time', ':6.3f')}
         self.data_time = {'train': self.AverageMeter('Data', ':6.3f'), 'test': self.AverageMeter('Data', ':6.3f')}
         self.losses = {'train': self.AverageMeter('Loss', ':.4e'), 'test': self.AverageMeter('Loss', ':.4e')}
@@ -53,10 +52,7 @@ class Model_StatsLogger:
         self.top5_history = {'train': [], 'test': []}
 
     def export_results_stats(self, gpu = 0):
-        if self.threads > 0:
-            csv_results_file_name = os.path.join(cfg.LOG.statistics_path[gpu], '{}_threads_m{}_result.csv'.format(self.threads,self.muxing))
-        else:
-            csv_results_file_name = os.path.join(cfg.LOG.statistics_path[gpu], 'Cuda_threads_result.csv')
+        csv_results_file_name = os.path.join(cfg.LOG.statistics_path[gpu], '{}_CM_result.csv'.format(self.compute_flavour))
         with open(csv_results_file_name, 'w', newline='') as csvfile:
             writer = csv.writer(csvfile)
             writer.writerow(["Epoch", "Loss_l", "Top1_l", "Top5_l",
@@ -69,6 +65,7 @@ class Model_StatsLogger:
                                 self.loss_history['test'][i],
                                 self.top1_history['test'][i]/100,
                                 self.top5_history['test'][i]/100])
+
 
     def export_stats(self, gpu= 0, gega = True):
         self.export_results_stats(gpu=gpu)
@@ -96,10 +93,7 @@ class Model_StatsLogger:
         yticks_loss = np.arange(0, 5.5, 0.5)
 
         fig, (axs0, axs1, axs2) = plt.subplots(3, 1, figsize=fig_size)
-        if self.threads > 0:
-            fig.suptitle('{} Threaded M{} Convolution Results'.format(self.threads, self.muxing), size='x-large', weight='bold')
-        else:
-            fig.suptitle('Cuda Threaded Convolution Results', size='x-large', weight='bold')
+        fig.suptitle('{} CM Convolution Results'.format(self.compute_flavour), size='x-large', weight='bold')
 
         fig.tight_layout(pad=8)
 
@@ -122,12 +116,9 @@ class Model_StatsLogger:
         axs2.plot(epochs, self.top5_history['test'], marker='.', color='orange', label='Test')
         axs2.legend()
 
-        if self.threads > 0:
-            graphs_path = os.path.join(cfg.LOG.graph_path[gpu], '{}_threads_Conv_m{}'.format(self.threads, self.muxing))
-            plt.savefig(os.path.join(graphs_path,'{}_threads_m{}_result.png'.format(self.threads, self.muxing)))
-        else:
-            graphs_path = os.path.join(cfg.LOG.graph_path[gpu], 'Cuda_Conv')
-            plt.savefig(os.path.join(graphs_path,'Cuda_threads_result.png'.format(self.threads)))
+        graphs_path = os.path.join(cfg.LOG.graph_path[gpu], '{}_CM_Conv'.format(self.compute_flavour))
+        plt.savefig(os.path.join(graphs_path,'{}_CM_result.png'.format(self.compute_flavour)))
+
         plt.close()
 
     def print_verbose(self, msg, v):

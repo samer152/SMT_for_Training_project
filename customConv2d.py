@@ -7,7 +7,7 @@ from custom_matmul import custom_matmul
 
 class customConv2d(nn.Conv2d):
     def __init__(self, in_channels, out_channels, kernel_size, stride=1, padding=0,
-                 dilation=1, groups=1, bias=True, padding_mode='zeros', threads_num=1, device='cuda', multiple_threads_size_MAC=1, macMuxType=0, verbose=0):
+                 dilation=1, groups=1, bias=True, padding_mode='zeros', compute_flavour=0, device='cuda', verbose=0):
         super(customConv2d, self).__init__(in_channels, out_channels, kernel_size, stride, padding, dilation, groups,
                                           bias, padding_mode)
 
@@ -20,11 +20,8 @@ class customConv2d(nn.Conv2d):
         self.dilation = dilation if isinstance(dilation, tuple) == 1 else (dilation, dilation)
         self.groups = groups
 
-        self.threads_num = threads_num
+        self.compute_flavour = compute_flavour
         self.device = device
-        self.multiple_threads_size_MAC = multiple_threads_size_MAC
-        self.macMuxType = macMuxType
-        self.rr = 0
         self.verbose = verbose
 
 
@@ -34,6 +31,11 @@ class customConv2d(nn.Conv2d):
 
 
     def forward(self, inputs):
+        if self.compute_flavour == 0:
+            #run legacy Conv2D
+            return super().forward(inputs)
+
+
         out_X_dim = math.floor((inputs.size(2) + 2 * self.padding[0] - 1 * (self.kernel_size[0] - 1) - 1) / self.stride[0] + 1)
         out_Y_dim = math.floor((inputs.size(3) + 2 * self.padding[1] - 1 * (self.kernel_size[1] - 1) - 1) / self.stride[1] + 1)
         x_unfolded_orig = nn.functional.unfold(inputs, kernel_size=self.kernel_size, padding=self.padding,
@@ -41,7 +43,7 @@ class customConv2d(nn.Conv2d):
 
         w_unfolded_orig = self.weight.view(self.weight.size(0), -1)
         x_unfolded_orig = x_unfolded_orig.transpose(1, 2).contiguous()
-        outputs = custom_matmul(x_unfolded_orig, w_unfolded_orig, self.threads_num, self.macMuxType)
+        outputs = custom_matmul(x_unfolded_orig, w_unfolded_orig, self.compute_flavour)
         outputs = outputs.transpose(1, 2).contiguous()
         output_folded = outputs.reshape(outputs.size(0), outputs.size(1), out_X_dim, out_Y_dim)
 

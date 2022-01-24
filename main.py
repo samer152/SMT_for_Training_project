@@ -34,8 +34,6 @@ parser.add_argument('--epochs', default=10, type=int,
                     help='number of epochs in training mode')
 parser.add_argument('--device', choices=['cpu', 'cuda'], default='cuda',
                     help='device to run on')
-parser.add_argument('--cuda_conv', default=0, type=int,
-                    help='compute cuda convolution for each network')
 parser.add_argument('--LR', default=0.1, type=float,
                     help='starting learning rate')
 parser.add_argument('--LRD', default=0, type=int,
@@ -50,10 +48,8 @@ parser.add_argument('--MILESTONES', nargs='+', default=[60, 120, 160], type=int,
                     help='milestones')
 parser.add_argument('--seed', default=42, type=int,
                     help='seed number')
-parser.add_argument('--threads', default=None, type=int,
-                    help='List of threads that custom convolution will run with')
-parser.add_argument('--muxing', default=None, type=int,
-                    help='Muxing type to enable - matched with threads command option')
+parser.add_argument('--compute_flavour', default=None, type=int,
+                    help='type of matmul/conv')
 parser.add_argument('--gpu', nargs='+', default=None,
                     help='GPU to run on (default: 0)')
 parser.add_argument('--distributed', default=0, type=int,
@@ -100,37 +96,40 @@ def distributed_training(gpu, net, dataset_, epochs, batch_size, logger_path, se
 
 
 
-def train_network(arch, dataset, epochs, batch_size, threads, muxing, seed, cuda_conv,
-                      LR, LRD, WD, MOMENTUM, GAMMA, MILESTONES, device, verbose, distributed, gpus, desc, save_all_states, model_path):
+def train_network(arch, dataset, epochs, batch_size, compute_flavour, seed,
+                  LR, LRD, WD, MOMENTUM, GAMMA, MILESTONES, device, verbose, distributed, gpus, desc, save_all_states, model_path):
 
     if seed is None:
         seed = torch.random.initial_seed() & ((1 << 63) - 1)
     name_str = '{}_{}_training_network'.format(arch, dataset)
     name_str = name_str + '_{}'.format(desc) if desc is not None else name_str
-    if threads is not None:
+    if compute_flavour is not None:
         #assert (1 not in threads or single_thread == False), "Computing 1 thread convolution twice. Please remove 1 from threads list"
-        assert muxing is not None, "Muxing methods do not match number of threads. Please provide equal lists for threads/muxing"
-        name_str = name_str + '_threads-{}_epochs-{}'.format(threads, epochs)
+        name_str = name_str + '_flavour-{}_epochs-{}'.format(compute_flavour, epochs)
     else:
-        name_str = name_str + '_threads-[{}]_epochs-{}'.format(1, epochs)
+        name_str = name_str + '_flavour-[{}]_epochs-{}'.format(0, epochs)
 
     assert (len(gpus) == 1 and distributed == 0) or (len(gpus) > 1 and distributed == 1), 'Error in GPUs numbers in {}Distributed Mode'.format('Non-' if distributed == 0 else '')
     gpus_num = len(gpus) if distributed == 1 else 1
     cfg.LOG.start_new_log(name=name_str, gpus=gpus_num)
 
     for gpu in range(gpus_num):
-        cfg.LOG.write('arch={}, dataset={}, desc={}, threads={}, muxing={}, epochs={}, batch_size={}, LR={}, LRD={}, WD={}, MOMENTUM={}, GAMMA={}, '
+        cfg.LOG.write('arch={}, dataset={}, desc={}, flavour={}, epochs={}, batch_size={}, LR={}, LRD={}, WD={}, MOMENTUM={}, GAMMA={}, '
                       'MILESTONES={}, device={}, verbose={}, model_path={}'
-                      .format(arch, dataset, desc, threads, muxing, epochs, batch_size, LR, LRD, WD, MOMENTUM, GAMMA, MILESTONES, device, verbose, model_path),
+                      .format(arch, dataset, desc, compute_flavour, epochs, batch_size, LR, LRD, WD, MOMENTUM, GAMMA, MILESTONES, device, verbose, model_path),
                       terminal=(gpu == 0), gpu_num=gpu)
     cfg.LOG.write('Seed = {}'.format(seed), terminal=(gpu == 0), gpu_num=gpu)
     cfg.LOG.write_title('TRAINING NETWORK', terminal=(gpu == 0), gpu_num=gpu)
 
     dataset_ = cfg.get_dataset(dataset)
-    net = NeuralNet(arch, dataset, epochs, threads, muxing, seed, cuda_conv,
+
+    #build model
+    net = NeuralNet(arch, dataset, epochs, compute_flavour, seed,
                     LR, LRD, WD, MOMENTUM, GAMMA, MILESTONES, device, verbose, gpus_num, distributed, save_all_states, model_path)
 
     if distributed == 0:
+
+        #NORMAL TRAINING
         test_gen, _ = dataset_.testset(batch_size=batch_size)
         (train_gen, _), (_, _) = dataset_.trainset(batch_size=batch_size, max_samples=None, random_seed=16)
         net.update_batch_size(len(train_gen), len(test_gen))
@@ -141,6 +140,7 @@ def train_network(arch, dataset, epochs, batch_size, threads, muxing, seed, cuda
         net.export_stats()
         net.plot_results()
     else:
+
         #distributed training
         cfg.LOG.close_log()
         os.environ['MASTER_ADDR'] = 'localhost'
@@ -165,8 +165,7 @@ def main():
         arch = args.arch.split('-')[0]
         dataset = args.arch.split('-')[1]
 
-        train_network(arch, dataset, epochs=args.epochs, batch_size=args.batch_size, threads=args.threads, muxing=args.muxing,
-                              seed=args.seed, cuda_conv=args.cuda_conv,
+        train_network(arch, dataset, epochs=args.epochs, batch_size=args.batch_size, compute_flavour=args.compute_flavour, seed=args.seed,
                               LR=args.LR, LRD=args.LRD, WD=args.WD, MOMENTUM=args.MOMENTUM,
                               GAMMA=args.GAMMA, MILESTONES=args.MILESTONES,
                               device=args.device, verbose=args.v, distributed=args.distributed, gpus=[int(x) for x in args.gpu],
