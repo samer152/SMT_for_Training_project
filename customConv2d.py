@@ -11,7 +11,6 @@ class customConv2d(nn.Conv2d):
         super(customConv2d, self).__init__(in_channels, out_channels, kernel_size, stride, padding, dilation, groups,
                                           bias, padding_mode)
 
-
         self.in_channels = in_channels
         self.out_channels = out_channels
         self.kernel_size = kernel_size if isinstance(kernel_size, tuple) == 1 else (kernel_size, kernel_size)
@@ -46,7 +45,6 @@ class customConv2d(nn.Conv2d):
         outputs = custom_matmul(x_unfolded_orig, w_unfolded_orig, self.compute_flavour)
         outputs = outputs.transpose(1, 2).contiguous()
         output_folded = outputs.reshape(outputs.size(0), outputs.size(1), out_X_dim, out_Y_dim)
-
 
         if self.bias is not None:
             bias_unsqueeze = self.bias.unsqueeze(dim=0).unsqueeze(dim=2).unsqueeze(dim=3)

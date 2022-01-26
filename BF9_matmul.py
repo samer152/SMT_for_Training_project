@@ -77,7 +77,7 @@ def convert_to_bf9(input):
 
 class BF9Matmul(Function):
     @staticmethod
-    def forward(ctx, inputs, weights):
+    def forward(ctx, inputs, weights, experiment):
         ctx.save_for_backward(inputs, weights)
 
         # convert to BF9
@@ -88,7 +88,7 @@ class BF9Matmul(Function):
         return inputs_bf9.matmul(weights_bf9)
 
     @staticmethod
-    def backward(ctx, grad_output):
+    def backward(ctx, grad_output, experiment):
         with torch.no_grad():
 
             inputs, weights = ctx.saved_tensors
