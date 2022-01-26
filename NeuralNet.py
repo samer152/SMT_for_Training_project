@@ -71,10 +71,11 @@ class NeuralNet:
 
         for gpu_num in range(gpus):
             graphs_path = os.path.join(cfg.LOG.graph_path[gpu_num], '{}_CM_Conv'.format(compute_flavour))
+            if os.sep == '\\' and '\\\\?\\' not in graphs_path:
+                graphs_path = '\\\\?\\' + graphs_path
             os.mkdir('{}'.format(graphs_path))
 
         self.load_models()
-
 
     def load_models(self, gpu=0, disributed = 0):
         if self.model_path is not None:
