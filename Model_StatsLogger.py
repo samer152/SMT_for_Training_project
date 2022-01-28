@@ -52,8 +52,9 @@ class Model_StatsLogger:
         self.top5_history = {'train': [], 'test': []}
 
     def export_results_stats(self, gpu = 0):
-        csv_results_file_name = os.path.join(cfg.LOG.statistics_path[gpu], '{}_CM_result.csv'.format(self.compute_flavour))
-        with open(csv_results_file_name, 'w', newline='') as csvfile:
+        statistics_path = os.path.dirname(os.path.abspath(cfg.LOG.statistics_path[gpu]))
+        csv_results_file_name = os.path.join(statistics_path, '{}_CM_result.csv'.format(self.compute_flavour))
+        with open(csv_results_file_name, 'w+', newline='') as csvfile:
             writer = csv.writer(csvfile)
             writer.writerow(["Epoch", "Loss_l", "Top1_l", "Top5_l",
                              "Loss_t", "Top1_t", "Top5_t"])
@@ -117,7 +118,10 @@ class Model_StatsLogger:
         axs2.legend()
 
         graphs_path = os.path.join(cfg.LOG.graph_path[gpu], '{}_CM_Conv'.format(self.compute_flavour))
-        plt.savefig(os.path.join(graphs_path,'{}_CM_result.png'.format(self.compute_flavour)))
+        if os.sep == '\\' and '\\\\?\\' not in graphs_path:
+            graphs_path = '\\\\?\\' + graphs_path
+        save_path = os.path.join(graphs_path,'{}_CM_result'.format(self.compute_flavour))
+        plt.savefig(save_path)
 
         plt.close()
 

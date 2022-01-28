@@ -147,18 +147,18 @@ class ResNet(nn.Module):
         #TODO: changed for CIFAR100 (from original Imagenet parameters)
         self.conv1 = customConv2d(3, self.inplanes, kernel_size=3, stride=1, padding=1, bias=False,
                                   compute_flavour=self.compute_flavour,
-                                  device=self.device, verbose=self.verbose, experiment=experiment)
+                                  device=self.device, verbose=self.verbose)
 
         self.bn1 = norm_layer(self.inplanes)
         self.relu = nn.ReLU(inplace=True)
         self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
-        self.layer1 = self._make_layer(block, 64, layers[0], compute_flavour=self.compute_flavour, experiment=experiment)
+        self.layer1 = self._make_layer(block, 64, layers[0], compute_flavour=self.compute_flavour)
         self.layer2 = self._make_layer(block, 128, layers[1], stride=2,
-                                       dilate=replace_stride_with_dilation[0], compute_flavour=self.compute_flavour, experiment=experiment)
+                                       dilate=replace_stride_with_dilation[0], compute_flavour=self.compute_flavour)
         self.layer3 = self._make_layer(block, 256, layers[2], stride=2,
-                                       dilate=replace_stride_with_dilation[1], compute_flavour=self.compute_flavour, experiment=experiment)
+                                       dilate=replace_stride_with_dilation[1], compute_flavour=self.compute_flavour)
         self.layer4 = self._make_layer(block, 512, layers[3], stride=2,
-                                       dilate=replace_stride_with_dilation[2], compute_flavour=self.compute_flavour, experiment=experiment)
+                                       dilate=replace_stride_with_dilation[2], compute_flavour=self.compute_flavour)
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
         self.fc = nn.Linear(512 * block.expansion, num_classes)
 

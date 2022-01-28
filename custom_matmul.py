@@ -18,27 +18,27 @@ def custom_matmul(input, weight, compute_flavour):
     experiment = 'normal'
     assert (experiment in ['normal', 'forward', 'backward', 'inference']), "Please provide valid experiment name."
 
-    if compute_flavour == 1:
+    if compute_flavour == 0:
         # NORMAL matmul
-        return NormalMatmul.apply(input, weight, experiment)
-    elif compute_flavour == 2:
+        return NormalMatmul.apply(input, weight)
+    elif compute_flavour == 1:
         # Mantissa 0
-        return BF9Matmul.apply(input, weight, experiment)
-    elif compute_flavour == 3:
+        return BF9Matmul.apply(input, weight)
+    elif compute_flavour == 2:
         # Mantissa 2
-        return BF11Matmul.apply(input, weight, experiment)
-    elif compute_flavour == 4:
+        return BF11Matmul.apply(input, weight)
+    elif compute_flavour == 3:
         # Mantissa 4
-        return BF13Matmul.apply(input, weight, experiment)
-    elif compute_flavour == 5:
+        return BF13Matmul.apply(input, weight)
+    elif compute_flavour == 4:
         # BF16 - Mantissa 7
-        return BF16Matmul.apply(input, weight, experiment)
-    elif compute_flavour == 6:
+        return BF16Matmul.apply(input, weight)
+    elif compute_flavour == 5:
         # Mantissa 15
-        return BF24Matmul.apply(input, weight, experiment)
-    elif compute_flavour == 7:
+        return BF24Matmul.apply(input, weight)
+    elif compute_flavour == 6:
         # ADQ example with zero 1 element
-        return ADQ_Example.apply(input, weight, experiment)
+        return ADQ_Example.apply(input, weight)
     else:
         raise NotImplementedError
 

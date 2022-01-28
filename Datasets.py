@@ -53,7 +53,7 @@ class ClassificationDataset:
             if distributed:
                 num_workers, pin_memory = total_gpus, True
             else:
-                num_workers, pin_memory = 32, True
+                num_workers, pin_memory = 2, True
         else:
             print('Warning: Did not find working GPU - Loading dataset on CPU')
             num_workers, pin_memory = 4, False
@@ -79,7 +79,7 @@ class ClassificationDataset:
             if distributed:
                 num_workers, pin_memory = total_gpus, True
             else:
-                num_workers, pin_memory = 32, True
+                num_workers, pin_memory = 2, True
         else:
             print('Warning: Did not find working GPU - Loading dataset on CPU')
             num_workers, pin_memory = 4, False

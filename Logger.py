@@ -89,7 +89,7 @@ class Logger:
                 if create_logs:
                     os.mkdir('{}'.format(self.models_path))
 
-            statistics_path = os.path.join(gpu_dir, 'Statistics')
+            statistics_path = os.path.join(gpu_dir, 'Stats')
             if create_logs:
                 os.mkdir('{}'.format(statistics_path))
             self.statistics_path.append(statistics_path)
