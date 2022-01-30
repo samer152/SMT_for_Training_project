@@ -77,7 +77,7 @@ def convert_to_bf13(input):
 
 class BF13Matmul(Function):
     @staticmethod
-    def forward(ctx, inputs, weights, experiment):
+    def forward(ctx, inputs, weights):
         ctx.save_for_backward(inputs, weights)
 
         # convert to BF13
@@ -88,7 +88,7 @@ class BF13Matmul(Function):
         return inputs_bf13.matmul(weights_bf13)
 
     @staticmethod
-    def backward(ctx, grad_output, experiment):
+    def backward(ctx, grad_output):
         with torch.no_grad():
 
             inputs, weights = ctx.saved_tensors
