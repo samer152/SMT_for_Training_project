@@ -79,7 +79,7 @@ class BF9Matmul(Function):
     @staticmethod
     def forward(ctx, inputs, weights):
         ctx.save_for_backward(inputs, weights)
-        if cfg.EXPERIMENT == 'forward' or cfg.EXPERIMENT == 'normal':
+        if cfg.EXPERIMENT == 'forward' or cfg.EXPERIMENT == 'normal' or cfg.EXPERIMENT == 'inference':
             # convert to BF9
             weights_bf9 = convert_to_bf9(weights)
             inputs_bf9 = convert_to_bf9(inputs)

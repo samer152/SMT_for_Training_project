@@ -26,6 +26,7 @@ BATCH_SIZE = 128
 RESULTS_DIR = os.path.join(basedir, f'{EXPERIMENT}_results')
 DATASET_DIR = os.path.join(basedir, 'datasets')
 DATASET_DIR_IMAGENET = '/mnt/ilsvrc2012'
+FINAL_RESULTS_DIR = os.path.join(basedir, f'results')
 
 
 # ------------------------------------------------

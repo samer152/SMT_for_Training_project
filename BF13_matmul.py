@@ -80,7 +80,7 @@ class BF13Matmul(Function):
     @staticmethod
     def forward(ctx, inputs, weights):
         ctx.save_for_backward(inputs, weights)
-        if cfg.EXPERIMENT == 'forward' or cfg.EXPERIMENT == 'normal':
+        if cfg.EXPERIMENT == 'forward' or cfg.EXPERIMENT == 'normal' or cfg.EXPERIMENT == 'inference':
             # convert to BF13
             weights_bf13 = convert_to_bf13(weights)
             inputs_bf13 = convert_to_bf13(inputs)

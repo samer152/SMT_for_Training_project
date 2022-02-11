@@ -3,7 +3,6 @@ import math
 import os
 import sys
 import random
-
 import matplotlib
 import torch.multiprocessing as mp
 import torch.distributed as dist
@@ -25,7 +24,7 @@ model_names = ['lenet5-cifar10',
 
 parser.add_argument('-a', '--arch', metavar='ARCH', choices=model_names, required=False,
                     help='model architectures and datasets:\n' + ' | '.join(model_names))
-parser.add_argument('--action', choices=['TRAINING'], required=True,
+parser.add_argument('--action', default='TRAINING', choices=['TRAINING', 'TESTING'], required=True,
                     help='TRAINING: Run given model on a given dataset')
 parser.add_argument('--desc')
 parser.add_argument('--batch_size', default=128, type=int, metavar='N',
@@ -59,8 +58,7 @@ parser.add_argument('--model_path', default=None, help='model path to load')
 parser.add_argument('--v', default=0, type=int, help='verbosity level (0,1,2) (default:0)')
 
 
-
-def distributed_training(gpu, net, dataset_, epochs, batch_size, logger_path, seed):
+def distributed_training(gpu, net, dataset_, epochs, batch_size, logger_path, seed, action):
     rank = gpu
     dist.init_process_group(
         backend='nccl',
@@ -79,73 +77,95 @@ def distributed_training(gpu, net, dataset_, epochs, batch_size, logger_path, se
     torch.cuda.manual_seed_all(seed)
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = False
-    #torch.backends.cudnn.enabled = False
+    # torch.backends.cudnn.enabled = False
     torch.cuda.set_device(gpu)
     net.distribute_model(gpu)
-    test_gen, _ = dataset_.testset(batch_size=batch_size, total_gpus=net.gpus, distributed = True)
-    (train_gen, _), (_, _) = dataset_.trainset(batch_size=batch_size, max_samples=None, random_seed=16, gpu=gpu, total_gpus=net.gpus, distributed = True)
+    test_gen, _ = dataset_.testset(batch_size=batch_size, total_gpus=net.gpus, distributed=True)
+    (train_gen, _), (_, _) = dataset_.trainset(batch_size=batch_size, max_samples=None, random_seed=16, gpu=gpu,
+                                               total_gpus=net.gpus, distributed=True)
 
     net.update_batch_size(len(train_gen), len(test_gen))
 
-    for epoch in range(0, epochs):
-        net.train(epoch, train_gen, gpu)
-        net.test_set(epoch, test_gen, gpu)
+    if action == 'TRAINING':
+        for epoch in range(0, epochs):
+            net.train(epoch, train_gen, gpu)
+            net.test_set(epoch, test_gen, gpu)
+    else:
+        assert (action == 'TESTING'), 'action must be either TRAINING or TESTING'
+        net = net.load_models(gpu=gpu, disributed=1)
+        net.test_set(epoch=0, test_gen=test_gen)
 
     net.export_stats(gpu)
     net.plot_results(gpu)
 
 
-
 def train_network(arch, dataset, epochs, batch_size, compute_flavour, seed,
-                  LR, LRD, WD, MOMENTUM, GAMMA, MILESTONES, device, verbose, distributed, gpus, desc, save_all_states, model_path):
-
+                  LR, LRD, WD, MOMENTUM, GAMMA, MILESTONES, device, verbose, distributed, gpus, desc, save_all_states,
+                  model_path, action):
     if seed is None:
         seed = torch.random.initial_seed() & ((1 << 63) - 1)
-    name_str = '{}_{}_training_network'.format(arch, dataset)
+    name_str = '{}_{}'.format(arch, dataset)
     name_str = name_str + '_{}'.format(desc) if desc is not None else name_str
     if compute_flavour is not None:
-        #assert (1 not in threads or single_thread == False), "Computing 1 thread convolution twice. Please remove 1 from threads list"
+        # assert (1 not in threads or single_thread == False), "Computing 1 thread convolution twice. Please remove 1 from threads list"
         name_str = name_str + '_flavour-{}_epochs-{}'.format(compute_flavour, epochs)
     else:
         name_str = name_str + '_flavour-[{}]_epochs-{}'.format(0, epochs)
 
-    assert (len(gpus) == 1 and distributed == 0) or (len(gpus) > 1 and distributed == 1), 'Error in GPUs numbers in {}Distributed Mode'.format('Non-' if distributed == 0 else '')
+    assert (len(gpus) == 1 and distributed == 0) or (
+                len(gpus) > 1 and distributed == 1), 'Error in GPUs numbers in {}Distributed Mode'.format(
+        'Non-' if distributed == 0 else '')
     gpus_num = len(gpus) if distributed == 1 else 1
     cfg.LOG.start_new_log(name=name_str, gpus=gpus_num)
 
     for gpu in range(gpus_num):
-        cfg.LOG.write('arch={}, dataset={}, desc={}, flavour={}, epochs={}, batch_size={}, LR={}, LRD={}, WD={}, MOMENTUM={}, GAMMA={}, '
-                      'MILESTONES={}, device={}, verbose={}, model_path={}'
-                      .format(arch, dataset, desc, compute_flavour, epochs, batch_size, LR, LRD, WD, MOMENTUM, GAMMA, MILESTONES, device, verbose, model_path),
-                      terminal=(gpu == 0), gpu_num=gpu)
+        cfg.LOG.write(
+            'arch={}, dataset={}, desc={}, flavour={}, epochs={}, batch_size={}, LR={}, LRD={}, WD={}, MOMENTUM={}, GAMMA={}, '
+            'MILESTONES={}, device={}, verbose={}, model_path={}, action={}'
+            .format(arch, dataset, desc, compute_flavour, epochs, batch_size, LR, LRD, WD, MOMENTUM, GAMMA, MILESTONES,
+                    device, verbose, model_path, action),
+            terminal=(gpu == 0), gpu_num=gpu)
     cfg.LOG.write('Seed = {}'.format(seed), terminal=(gpu == 0), gpu_num=gpu)
-    cfg.LOG.write_title('TRAINING NETWORK', terminal=(gpu == 0), gpu_num=gpu)
 
     dataset_ = cfg.get_dataset(dataset)
 
-    #build model
+    # build model
     net = NeuralNet(arch, dataset, epochs, compute_flavour, seed,
-                    LR, LRD, WD, MOMENTUM, GAMMA, MILESTONES, device, verbose, gpus_num, distributed, save_all_states, model_path)
+                    LR, LRD, WD, MOMENTUM, GAMMA, MILESTONES, device, verbose, gpus_num, distributed, save_all_states,
+                    model_path)
+
+    if action == 'TRAINING':
+        cfg.LOG.write_title('TRAINING NETWORK', terminal=(gpu == 0), gpu_num=gpu)
+    else:
+        assert (action == 'TESTING'), 'action must be either TRAINING or TESTING'
+        assert (model_path is not None), 'model_path must be specified for testing'
+        cfg.LOG.write_title('TESTING NETWORK', terminal=(gpu == 0), gpu_num=gpu)
 
     if distributed == 0:
 
-        #NORMAL TRAINING
+        # NORMAL TRAINING
         test_gen, _ = dataset_.testset(batch_size=batch_size)
         (train_gen, _), (_, _) = dataset_.trainset(batch_size=batch_size, max_samples=None, random_seed=16)
         net.update_batch_size(len(train_gen), len(test_gen))
-        for epoch in range(0, epochs):
+        if action == 'TRAINING':
+            for epoch in range(0, epochs):
                 net.train(epoch, train_gen)
                 net.test_set(epoch, test_gen)
+        else:
+            assert (action == 'TESTING'), 'action must be either TRAINING or TESTING'
+            net = net.load_models()
+            net.test_set(epoch=0, test_gen=test_gen)
 
         net.export_stats()
         net.plot_results()
     else:
 
-        #distributed training
+        # distributed training
         cfg.LOG.close_log()
         os.environ['MASTER_ADDR'] = 'localhost'
         os.environ['MASTER_PORT'] = '12355'
-        mp.spawn(distributed_training, nprocs=len(gpus), args=(net, dataset_, epochs, batch_size, cfg.LOG.path, seed))
+        mp.spawn(distributed_training, nprocs=len(gpus),
+                 args=(net, dataset_, epochs, batch_size, cfg.LOG.path, seed, action))
 
 
 def main():
@@ -156,20 +176,23 @@ def main():
         os.environ['CUDA_VISIBLE_DEVICES'] = ','.join(args.gpu)
 
     cfg.BATCH_SIZE = args.batch_size
-    assert math.floor(math.log2(args.batch_size)) == math.ceil(math.log2(args.batch_size)) , 'Error: Implementation supports only batch size which is 2^x'
+    assert math.floor(math.log2(args.batch_size)) == math.ceil(
+        math.log2(args.batch_size)), 'Error: Implementation supports only batch size which is 2^x'
 
     cfg.USER_CMD = ' '.join(sys.argv)
 
-    if args.action == 'TRAINING':
+    if args.action == 'TRAINING' or args.action == 'TESTING':
         assert (args.arch is not None), "Please provide an ARCH name to execute training on"
         arch = args.arch.split('-')[0]
         dataset = args.arch.split('-')[1]
 
-        train_network(arch, dataset, epochs=args.epochs, batch_size=args.batch_size, compute_flavour=args.compute_flavour, seed=args.seed,
-                              LR=args.LR, LRD=args.LRD, WD=args.WD, MOMENTUM=args.MOMENTUM,
-                              GAMMA=args.GAMMA, MILESTONES=args.MILESTONES,
-                              device=args.device, verbose=args.v, distributed=args.distributed, gpus=[int(x) for x in args.gpu],
-                              desc=args.desc, save_all_states=args.save_all_states, model_path=args.model_path)
+        train_network(arch, dataset, epochs=args.epochs, batch_size=args.batch_size,
+                      compute_flavour=args.compute_flavour, seed=args.seed,
+                      LR=args.LR, LRD=args.LRD, WD=args.WD, MOMENTUM=args.MOMENTUM,
+                      GAMMA=args.GAMMA, MILESTONES=args.MILESTONES,
+                      device=args.device, verbose=args.v, distributed=args.distributed, gpus=[int(x) for x in args.gpu],
+                      desc=args.desc, save_all_states=args.save_all_states, model_path=args.model_path,
+                      action=args.action)
     else:
         raise NotImplementedError
 

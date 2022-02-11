@@ -80,7 +80,7 @@ class BF24Matmul(Function):
     @staticmethod
     def forward(ctx, inputs, weights):
         ctx.save_for_backward(inputs, weights)
-        if cfg.EXPERIMENT == 'forward' or cfg.EXPERIMENT == 'normal':
+        if cfg.EXPERIMENT == 'forward' or cfg.EXPERIMENT == 'normal' or cfg.EXPERIMENT == 'inference':
             # convert to BF24
             weights_bf24 = convert_to_bf24(weights)
             inputs_bf24 = convert_to_bf24(inputs)

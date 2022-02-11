@@ -82,7 +82,7 @@ class BF16Matmul(Function):
     @staticmethod
     def forward(ctx, inputs, weights):
         ctx.save_for_backward(inputs, weights)
-        if cfg.EXPERIMENT == 'forward' or cfg.EXPERIMENT == 'normal':
+        if cfg.EXPERIMENT == 'forward' or cfg.EXPERIMENT == 'normal' or cfg.EXPERIMENT == 'inference':
             # convert to BF16
             weights_bf16 = convert_to_bf16(weights)
             inputs_bf16 = convert_to_bf16(inputs)

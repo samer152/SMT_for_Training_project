@@ -193,7 +193,7 @@ class NeuralNet:
             filename = '{}_epoch-{}_top1-{}.pth'.format(self.arch, epoch, round(best_top1_acc, 2))
         else:
             filename = '{}_epoch-{}_{}_top1-{}.pth'.format(self.arch, epoch, desc, round(best_top1_acc, 2))
-        path = '{}/{}'.format(cfg.LOG.models_path, filename)
+        path = '{}\\{}'.format(cfg.LOG.models_path, filename)
 
         state = {'arch': self.arch,
                  'epoch': epoch + 1,
