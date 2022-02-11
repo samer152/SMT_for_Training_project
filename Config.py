@@ -9,7 +9,7 @@ from models.resnet_imagenet import resNet18_imagenet
 basedir, _ = os.path.split(os.path.abspath(__file__))
 basedir = os.path.join(basedir, 'data')
 
-EXPERIMENT = 'backward'
+EXPERIMENT = 'forward'
 
 MODELS = {'lenet5_cifar10': leNet_cifar10,
           'alexnet_cifar10': alexNet_cifar10,
