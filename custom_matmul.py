@@ -10,13 +10,13 @@ from BF13_matmul import BF13Matmul
 from BF11_matmul import BF11Matmul
 from BF24_matmul import BF24Matmul
 from NormalMatmul import NormalMatmul
+import Config as cfg
 from utils import Dtype, Stream, load_kernel, Dtype_size
 
 
 def custom_matmul(input, weight, compute_flavour):
 
-    experiment = 'normal'
-    assert (experiment in ['normal', 'forward', 'backward', 'inference']), "Please provide valid experiment name."
+    assert (cfg.EXPERIMENT in ['normal', 'forward', 'backward', 'inference']), "Please provide valid experiment name."
 
     if compute_flavour == 0:
         # NORMAL matmul

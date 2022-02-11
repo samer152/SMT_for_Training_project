@@ -1,6 +1,7 @@
 import math
 from torch.autograd import Function
 import torch
+import Config as cfg
 from utils import load_kernel, Stream, Dtype
 
 CUDA_NUM_THREADS = 1024
@@ -79,26 +80,36 @@ class BF11Matmul(Function):
     @staticmethod
     def forward(ctx, inputs, weights):
         ctx.save_for_backward(inputs, weights)
+        if cfg.EXPERIMENT == 'forward' or cfg.EXPERIMENT == 'normal':
+            # convert to BF11
+            weights_bf11 = convert_to_bf11(weights)
+            inputs_bf11 = convert_to_bf11(inputs)
 
-        # convert to BF11
-        weights_bf11 = convert_to_bf11(weights)
-        inputs_bf11 = convert_to_bf11(inputs)
-
-        weights_bf11 = weights_bf11.t().contiguous()
-        return inputs_bf11.matmul(weights_bf11)
+            weights_bf11 = weights_bf11.t().contiguous()
+            return inputs_bf11.matmul(weights_bf11)
+        else:
+            # Normal MatMul
+            weights = weights.t().contiguous()
+            return inputs.matmul(weights)
 
     @staticmethod
     def backward(ctx, grad_output):
         with torch.no_grad():
 
             inputs, weights = ctx.saved_tensors
-
-            weights_bf11 = convert_to_bf11(weights)
-            inputs_bf11 = convert_to_bf11(inputs)
-            grad_output_bf11 = convert_to_bf11(grad_output.contiguous())
-
-            inputs_gradients = grad_output_bf11.matmul(weights_bf11)
-            grad_output_new = grad_output_bf11.transpose(1,2).contiguous()
-            weights_gradients = grad_output_new.matmul(inputs_bf11)
-            weights_gradients = weights_gradients.sum(0)
+            if cfg.EXPERIMENT == 'backward' or cfg.EXPERIMENT == 'normal':
+                weights_bf11 = convert_to_bf11(weights)
+                inputs_bf11 = convert_to_bf11(inputs)
+                grad_output_bf11 = convert_to_bf11(grad_output.contiguous())
+                inputs_gradients = grad_output_bf11.matmul(weights_bf11)
+                grad_output_new = grad_output_bf11.transpose(1,2).contiguous()
+                weights_gradients = grad_output_new.matmul(inputs_bf11)
+                weights_gradients = weights_gradients.sum(0)
+            else:
+                # Normal MatMul
+                inputs, weights = ctx.saved_tensors
+                inputs_gradients = grad_output.matmul(weights)
+                grad_output_new = grad_output.transpose(1, 2).contiguous()
+                weights_gradients = grad_output_new.matmul(inputs)
+                weights_gradients = weights_gradients.sum(0)
             return inputs_gradients, weights_gradients

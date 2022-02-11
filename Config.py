@@ -9,6 +9,8 @@ from models.resnet_imagenet import resNet18_imagenet
 basedir, _ = os.path.split(os.path.abspath(__file__))
 basedir = os.path.join(basedir, 'data')
 
+EXPERIMENT = 'backward'
+
 MODELS = {'lenet5_cifar10': leNet_cifar10,
           'alexnet_cifar10': alexNet_cifar10,
           'alexnet_cifar100': alexNet_cifar100,
@@ -21,7 +23,7 @@ BATCH_SIZE = 128
 # ------------------------------------------------
 #                   Directories
 # ------------------------------------------------
-RESULTS_DIR = os.path.join(basedir, 'results')
+RESULTS_DIR = os.path.join(basedir, f'{EXPERIMENT}_results')
 DATASET_DIR = os.path.join(basedir, 'datasets')
 DATASET_DIR_IMAGENET = '/mnt/ilsvrc2012'
 

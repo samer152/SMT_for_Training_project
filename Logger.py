@@ -80,16 +80,22 @@ class Logger:
                 os.mkdir('{}'.format(gpu_dir))
 
             graphs_path = os.path.join(gpu_dir, 'Graphs')
+            if os.sep == '\\' and '\\\\?\\' not in graphs_path:
+                graphs_path = '\\\\?\\' + graphs_path
             if create_logs:
                 os.mkdir('{}'.format(graphs_path))
             self.graph_path.append(graphs_path)
 
             if gpu_num == 0:
                 self.models_path = os.path.join(gpu_dir, 'models')
+                if os.sep == '\\' and '\\\\?\\' not in self.models_path:
+                    self.models_path = '\\\\?\\' + self.models_path
                 if create_logs:
                     os.mkdir('{}'.format(self.models_path))
 
             statistics_path = os.path.join(gpu_dir, 'Stats')
+            if os.sep == '\\' and '\\\\?\\' not in statistics_path:
+                statistics_path = '\\\\?\\' + statistics_path
             if create_logs:
                 os.mkdir('{}'.format(statistics_path))
             self.statistics_path.append(statistics_path)
