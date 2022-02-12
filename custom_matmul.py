@@ -4,7 +4,7 @@ import torch
 from torch.nn.utils import weight_norm
 
 from ADQ_example import ADQ_Example
-from SpecialMatmul import BF16Matmul, BF14Matmul, BF12Matmul, BF10Matmul, NVTFMatmul, PXR24Matmul
+from SpecialMatmul import BF16Matmul, BF14Matmul, BF12Matmul, BF10Matmul, NVTFMatmul, PXR24Matmul, BF9Matmul
 from NormalMatmul import NormalMatmul
 from utils import Dtype, Stream, load_kernel, Dtype_size
 
@@ -35,6 +35,9 @@ def custom_matmul(input, weight, compute_flavour):
     elif compute_flavour == 8:
         # PXR24
         return PXR24Matmul.apply(input, weight)        
+    elif compute_flavour == 9:
+        # BF9
+        return BF9Matmul.apply(input, weight)        
     else:
         raise NotImplementedError
 
