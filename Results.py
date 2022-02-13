@@ -114,7 +114,7 @@ def plot_best_results(csv_dict, inference=False, gpu=0):
                 dict_vals = [v for v in csv_dict[key][val].values()]
                 best_val = min(dict_vals) if val == 'Loss_t' or val == 'Loss_l' else max(dict_vals)
                 best_index = np.argmin(dict_vals) if val == 'Loss_t' or val == 'Loss_l' else np.argmax(dict_vals)
-                val_dict[val] = (best_val, csv_dict[key][0][best_index])
+                val_dict[val] = (best_val, csv_dict[key]['Epoch'][best_index])
             max_dict[key] = val_dict
         print(pd.DataFrame(max_dict))
         print(max_dict)
@@ -138,7 +138,7 @@ def plot_best_results(csv_dict, inference=False, gpu=0):
     fig_size = (30, 30)
     fig, (axs0, axs1, axs2) = plt.subplots(3, 1, figsize=fig_size)
     x_axis = [0, 2, 4, 7, 15, 23]
-    fig.suptitle('Backward Experiments Best Results', size='x-large', weight='bold')
+    fig.suptitle(f'{cfg.EXPERIMENT} Experiments Best Results', size='x-large', weight='bold')
     fig.tight_layout(pad=8)
 
     axs0.set_title('Best Loss Convolution Results', size='x-large', weight='bold')
@@ -164,10 +164,10 @@ def plot_best_results(csv_dict, inference=False, gpu=0):
 
 
 def main():
-    csv_dict = load_csv_files(inference=True)
+    csv_dict = load_csv_files(inference=False)
     print(csv_dict)
     # plot_results(csv_dict)
-    plot_best_results(csv_dict, inference=True)
+    plot_best_results(csv_dict, inference=False)
 
 
 if __name__ == "__main__":
