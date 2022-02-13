@@ -1,3 +1,4 @@
+import glob
 import os
 import numpy as np
 import torch
@@ -68,6 +69,8 @@ class NeuralNet:
         self.model_stats = Model_StatsLogger(compute_flavour, seed, verbose)
         self.model_optimizer = optim.SGD(self.model.parameters(), lr=LR, weight_decay=WD, momentum=MOMENTUM)
         self.model_train_scheduler = optim.lr_scheduler.MultiStepLR(self.model_optimizer, milestones=MILESTONES, gamma=GAMMA)
+        if model_path is not None:
+            self.model = self.load_models()
 
         for gpu_num in range(gpus):
             graphs_path = os.path.join(cfg.LOG.graph_path[gpu_num], '{}_CM_Conv'.format(compute_flavour))
@@ -79,6 +82,14 @@ class NeuralNet:
 
     def load_models(self, gpu=0, disributed = 0):
         if self.model_path is not None:
+            for path, subdirs, files in os.walk(cfg.RESULTS_DIR):
+                for file in files:
+                    if file == self.model_path:
+                        self.model_path = os.path.join(path, file)
+                        break
+            if os.sep == '\\' and '\\\\?\\' not in self.model_path:
+                self.model_path = '\\\\?\\' + self.model_path
+            print('Loading model from {}'.format(self.model_path))
             if os.path.isfile(self.model_path):
                 chkp = torch.load(self.model_path)
             else:
@@ -98,6 +109,7 @@ class NeuralNet:
                     '' if disributed == 0 else ' in distributed mode'), terminal=(gpu == 0), gpu_num=gpu)
 
                 cfg.LOG.write('Loaded models successfully{}'.format('' if disributed == 0 else ' in distributed mode'), terminal=(gpu == 0), gpu_num=gpu)
+                return self.model
             except RuntimeError as e:
                 cfg.LOG.write('Loading model state warning, please review', terminal=(gpu == 0), gpu_num=gpu)
                 cfg.LOG.write('{}'.format(e), terminal=(gpu == 0), gpu_num=gpu)
@@ -214,12 +226,12 @@ class NeuralNet:
 
 
     def export_stats(self, gpu = 0):
-        #export stats results
+        #export stats normal_results
         self.model_stats.export_stats(gpu=gpu)
 
 
     def plot_results(self, gpu = 0):
-        #plot results for each convolution
+        #plot normal_results for each convolution
         self.model_stats.plot_results(gpu=gpu)
 
 

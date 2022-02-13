@@ -151,13 +151,14 @@ def train_network(arch, dataset, epochs, batch_size, compute_flavour, seed,
             for epoch in range(0, epochs):
                 net.train(epoch, train_gen)
                 net.test_set(epoch, test_gen)
+
+            net.export_stats()
+            net.plot_results()
         else:
             assert (action == 'TESTING'), 'action must be either TRAINING or TESTING'
-            net = net.load_models()
             net.test_set(epoch=0, test_gen=test_gen)
+            net.export_stats()
 
-        net.export_stats()
-        net.plot_results()
     else:
 
         # distributed training

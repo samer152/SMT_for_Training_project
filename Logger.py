@@ -101,4 +101,4 @@ class Logger:
             self.statistics_path.append(statistics_path)
 
             if create_logs:
-                self.write("New results directory created @ {}".format(self.path), terminal=(gpu_num==0), gpu_num=gpu_num)
+                self.write("New normal_results directory created @ {}".format(self.path), terminal=(gpu_num==0), gpu_num=gpu_num)

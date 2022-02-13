@@ -56,16 +56,23 @@ class Model_StatsLogger:
         csv_results_file_name = os.path.join(statistics_path, '{}_CM_result.csv'.format(self.compute_flavour))
         with open(csv_results_file_name, 'w+', newline='') as csvfile:
             writer = csv.writer(csvfile)
-            writer.writerow(["Epoch", "Loss_l", "Top1_l", "Top5_l",
-                             "Loss_t", "Top1_t", "Top5_t"])
-            for i in range(0, len(self.epochs_history['train'])):
-                writer.writerow([self.epochs_history['train'][i],
-                                self.loss_history['train'][i],
-                                self.top1_history['train'][i]/100,
-                                self.top5_history['train'][i]/100,
-                                self.loss_history['test'][i],
-                                self.top1_history['test'][i]/100,
-                                self.top5_history['test'][i]/100])
+            if len(self.epochs_history['train']) > 0:
+                writer.writerow(["Epoch", "Loss_l", "Top1_l", "Top5_l",
+                                 "Loss_t", "Top1_t", "Top5_t"])
+                for i in range(0, len(self.epochs_history['train'])):
+                    writer.writerow([self.epochs_history['train'][i],
+                                    self.loss_history['train'][i],
+                                    self.top1_history['train'][i]/100,
+                                    self.top5_history['train'][i]/100,
+                                    self.loss_history['test'][i],
+                                    self.top1_history['test'][i]/100,
+                                    self.top5_history['test'][i]/100])
+            else:
+                writer.writerow(["Loss_t", "Top1_t", "Top5_t"])
+                for i in range(0, len(self.epochs_history['test'])):
+                    writer.writerow([self.loss_history['test'][i],
+                                    self.top1_history['test'][i]/100,
+                                    self.top5_history['test'][i]/100])
 
 
     def export_stats(self, gpu= 0, gega = True):
