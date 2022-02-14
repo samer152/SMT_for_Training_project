@@ -39,25 +39,25 @@ def custom_matmul(input, weight, compute_flavour):
     elif compute_flavour == 9:
         # BF9
         return BF9Matmul.apply(input, weight)
-    elif compute_flavour == 10
+    elif compute_flavour == 10:
         # BF16_mul_sum
         return BF16MatMulSum.apply(input, weight)
-    elif compute_flavour == 11
+    elif compute_flavour == 11:
         # BF14_mul_sum
         return BF14MatMulSum.apply(input, weight)
-    elif compute_flavour == 12
+    elif compute_flavour == 12:
         # BF12_mul_sum
         return BF12MatMulSum.apply(input, weight)
-    elif compute_flavour == 13
+    elif compute_flavour == 13:
         # BF10_mul_sum
         return BF10MatMulSum.apply(input, weight)
-    elif compute_flavour == 14
+    elif compute_flavour == 14:
         # BF9_mul_sum
         return BF9MatMulSum.apply(input, weight)
-    elif compute_flavour == 15
+    elif compute_flavour == 15:
         # NVTF_mul_sum
         return NVTFMatMulSum.apply(input, weight)
-    elif compute_flavour == 16
+    elif compute_flavour == 16:
         # PXR24_mul_sum
         return PXR24MatMulSum.apply(input, weight)
     else:
