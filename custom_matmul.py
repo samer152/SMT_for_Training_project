@@ -5,6 +5,7 @@ from torch.nn.utils import weight_norm
 
 from ADQ_example import ADQ_Example
 from SpecialMatmul import BF16Matmul, BF14Matmul, BF12Matmul, BF10Matmul, NVTFMatmul, PXR24Matmul, BF9Matmul
+from SpecialMatmul_convertedSum import BF16MatMulSum, BF14MatMulSum, BF12Matmul, BF10MatMulSum, NVTFMatMulSum, PXR24MatMulSum, BF9MatMulSum
 from NormalMatmul import NormalMatmul
 from utils import Dtype, Stream, load_kernel, Dtype_size
 
@@ -37,7 +38,28 @@ def custom_matmul(input, weight, compute_flavour):
         return PXR24Matmul.apply(input, weight)        
     elif compute_flavour == 9:
         # BF9
-        return BF9Matmul.apply(input, weight)        
+        return BF9Matmul.apply(input, weight)
+    elif compute_flavour == 10
+        # BF16_mul_sum
+        return BF16MatMulSum.apply(input, weight)
+    elif compute_flavour == 11
+        # BF14_mul_sum
+        return BF14MatMulSum.apply(input, weight)
+    elif compute_flavour == 12
+        # BF12_mul_sum
+        return BF12MatMulSum.apply(input, weight)
+    elif compute_flavour == 13
+        # BF10_mul_sum
+        return BF10MatMulSum.apply(input, weight)
+    elif compute_flavour == 14
+        # BF9_mul_sum
+        return BF9MatMulSum.apply(input, weight)
+    elif compute_flavour == 15
+        # NVTF_mul_sum
+        return NVTFMatMulSum.apply(input, weight)
+    elif compute_flavour == 16
+        # PXR24_mul_sum
+        return PXR24MatMulSum.apply(input, weight)
     else:
         raise NotImplementedError
 
