@@ -191,7 +191,7 @@ class BF9MatMulSum(Function):
 
         weights_bf9 = weights_bf9.t().contiguous()
         res = inputs_bf9.matmul(weights_bf9)
-        return onvert_to_bf9(res)
+        return convert_to_bf9(res)
 
     @staticmethod
     def backward(ctx, grad_output):

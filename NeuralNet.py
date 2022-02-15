@@ -260,7 +260,6 @@ class NeuralNet:
             # measure accuracy and record logs
             self.measure_accuracy_log(model_out, model_loss, target, images.size(0), topk=(1, 5), mode='train')
 
-
             # compute gradient and do SGD step
             self.zero_gradients()
 
