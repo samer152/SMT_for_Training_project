@@ -4,9 +4,13 @@ import torch
 from torch.nn.utils import weight_norm
 
 from ADQ_example import ADQ_Example
-from SpecialMatmul import BF16Matmul, BF14Matmul, BF12Matmul, BF10Matmul, NVTFMatmul, PXR24Matmul, BF9Matmul
-from SpecialMatmul_convertedSum import BF16MatMulSum, BF14MatMulSum, BF12Matmul, BF10MatMulSum, NVTFMatMulSum, PXR24MatMulSum, BF9MatMulSum
 from NormalMatmul import NormalMatmul
+from SpecialMatmul import BF16Matmul, BF14Matmul, BF12Matmul, BF10Matmul, NVTFMatmul, PXR24Matmul, BF9Matmul
+from SpecialMatmul_convertedSum import BF16MatMulSum, BF14MatMulSum, BF12MatMulSum, BF10MatMulSum, NVTFMatMulSum, PXR24MatMulSum, BF9MatMulSum
+from SpecialMatmul_fwd import BF9Matmul_fwd, BF10Matmul_fwd
+from SpecialMatmul_bwd_igrad import BF9Matmul_bwd_igrad, BF10Matmul_bwd_igrad
+from SpecialMatmul_bwd_wgrad import BF9Matmul_bwd_wgrad, BF10Matmul_bwd_wgrad
+
 from utils import Dtype, Stream, load_kernel, Dtype_size
 
 
@@ -60,6 +64,24 @@ def custom_matmul(input, weight, compute_flavour):
     elif compute_flavour == 16:
         # PXR24_mul_sum
         return PXR24MatMulSum.apply(input, weight)
+    elif compute_flavour == 20:
+        # fwd_BF9
+        return BF9Matmul_fwd.apply(input, weight)
+    elif compute_flavour == 21:
+        # fwd_BF10
+        return BF10Matmul_fwd.apply(input, weight)
+    elif compute_flavour == 22:
+        # BF9Matmul_bwd_wgrad
+        return BF9Matmul_bwd_wgrad.apply(input, weight)
+    elif compute_flavour == 23:
+        # BF10Matmul_bwd_wgrad
+        return BF10Matmul_bwd_wgrad.apply(input, weight)
+    elif compute_flavour == 24:
+        # BF9Matmul_bwd_igrad
+        return BF9Matmul_bwd_igrad.apply(input, weight)
+    elif compute_flavour == 25:
+        # BF10Matmul_bwd_igrad
+        return BF10Matmul_bwd_igrad.apply(input, weight)
     else:
         raise NotImplementedError
 
