@@ -47,11 +47,11 @@ class BF10Matmul_bwd_wgrad(Function):
 
             inputs, weights = ctx.saved_tensors
 
-            weights_bf9 = convert_to_bf9(weights)
+            weights_bf10 = convert_to_bf10(weights)
             inputs_bf12 = convert_to_bf12(inputs)
             grad_output_bf12 = convert_to_bf12(grad_output.contiguous())
 
-            inputs_gradients = grad_output_bf12.matmul(weights_bf9)
+            inputs_gradients = grad_output_bf12.matmul(weights_bf10)
             grad_output_new = grad_output_bf12.transpose(1,2).contiguous()
             weights_gradients = grad_output_new.matmul(inputs_bf12)
             weights_gradients = weights_gradients.sum(0)
