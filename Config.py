@@ -10,6 +10,7 @@ basedir, _ = os.path.split(os.path.abspath(__file__))
 basedir = os.path.join(basedir, 'data')
 
 EXPERIMENT = 'normal'
+DIR = 'baseline'
 
 MODELS = {'lenet5_cifar10': leNet_cifar10,
           'alexnet_cifar10': alexNet_cifar10,
@@ -23,10 +24,10 @@ BATCH_SIZE = 128
 # ------------------------------------------------
 #                   Directories
 # ------------------------------------------------
-RESULTS_DIR = os.path.join(basedir, f'{EXPERIMENT}_results')
+RESULTS_DIR = os.path.join(basedir, f'{DIR}_results')
 DATASET_DIR = os.path.join(basedir, 'datasets')
 DATASET_DIR_IMAGENET = '/mnt/ilsvrc2012'
-FINAL_RESULTS_DIR = os.path.join(basedir, f'{EXPERIMENT}_results')
+FINAL_RESULTS_DIR = os.path.join(basedir, f'{DIR}_results')
 
 
 # ------------------------------------------------

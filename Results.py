@@ -102,65 +102,74 @@ def plot_results(csv_dict, gpu=0):
 
     plt.savefig(cfg.FINAL_RESULTS_DIR + "\\" + f"{cfg.EXPERIMENT}_Results.png")
 
+
 def plot_best_results(csv_dict, inference=False, gpu=0):
+
+    mantissa = ['0', '2', '4', '7', '15', '23']
 
     if not inference:
         max_dict = {}
-        for key in csv_dict.keys():
+        keys = list(csv_dict.keys())
+        keys = np.roll(keys, -1)
+
+        for i, key in enumerate(keys):
             val_dict = {}
             for val in csv_dict[key]:
                 if val == 'Epoch':
                     continue
                 dict_vals = [v for v in csv_dict[key][val].values()]
                 best_val = min(dict_vals) if val == 'Loss_t' or val == 'Loss_l' else max(dict_vals)
-                best_index = np.argmin(dict_vals) if val == 'Loss_t' or val == 'Loss_l' else np.argmax(dict_vals)
-                val_dict[val] = (best_val, csv_dict[key]['Epoch'][best_index])
-            max_dict[key] = val_dict
+                # best_index = np.argmin(dict_vals) if val == 'Loss_t' or val == 'Loss_l' else np.argmax(dict_vals)
+                # val_dict[val] = (best_val, csv_dict[key]['Epoch'][best_index])
+                val_dict[val] = best_val
+            max_dict[mantissa[i]] = val_dict
         print(pd.DataFrame(max_dict))
         print(max_dict)
 
     else:
         max_dict = csv_dict
 
-    loss_t_dict = []
-    top1_t_dict = []
-    top5_t_dict = []
-    for flavour in max_dict.keys():
-        if flavour == '0_CM_result.csv':
-            continue
-        loss_t_dict.append(max_dict[flavour]['Loss_t'][0])
-        top1_t_dict.append(max_dict[flavour]['Top1_t'][0])
-        top5_t_dict.append(max_dict[flavour]['Top5_t'][0])
-    loss_t_dict.append(max_dict['0_CM_result.csv']['Loss_t'][0])
-    top1_t_dict.append(max_dict['0_CM_result.csv']['Top1_t'][0])
-    top5_t_dict.append(max_dict['0_CM_result.csv']['Top5_t'][0])
+    # loss_t_dict = []
+    # top1_t_dict = []
+    # top5_t_dict = []
+    # for flavour in max_dict.keys():
+    #     if flavour == '0_CM_result.csv':
+    #         continue
+    #     loss_t_dict.append(max_dict[flavour]['Loss_t'][0])
+    #     top1_t_dict.append(max_dict[flavour]['Top1_t'][0])
+    #     top5_t_dict.append(max_dict[flavour]['Top5_t'][0])
+    # loss_t_dict.append(max_dict['0_CM_result.csv']['Loss_t'][0])
+    # top1_t_dict.append(max_dict['0_CM_result.csv']['Top1_t'][0])
+    # top5_t_dict.append(max_dict['0_CM_result.csv']['Top5_t'][0])
+    #
+    # fig_size = (30, 30)
+    # fig, (axs0, axs1, axs2) = plt.subplots(3, 1, figsize=fig_size)
+    # x_axis = [0, 2, 4, 7, 15, 23]
+    # fig.suptitle(f'{cfg.EXPERIMENT} Experiments Best Results', size='x-large', weight='bold')
+    # fig.tight_layout(pad=8)
+    #
+    # axs0.set_title('Best Loss Convolution Results', size='x-large', weight='bold')
+    # axs0.plot(loss_t_dict, marker='.', color='blue')
+    # axs0.set_xticks(np.arange(len(loss_t_dict)), x_axis)
+    # axs0.set_xlabel('Mantissa', size='x-large', weight='bold')
+    # axs0.set_ylabel('Loss', size='x-large', weight='bold')
+    #
+    # axs1.set_title('Best Accuracy Top1 Convolution Results', size='x-large', weight='bold')
+    # axs1.plot(top1_t_dict, marker='.', color='blue')
+    # axs1.set_xticks(np.arange(len(top1_t_dict)), x_axis)
+    # axs1.set_xlabel('Mantissa', size='x-large', weight='bold')
+    # axs1.set_ylabel('Top1', size='x-large', weight='bold')
+    #
+    # axs2.set_title('Best Accuracy Top5 Convolution Results', size='x-large', weight='bold')
+    # axs2.plot(top5_t_dict, marker='.', color='blue')
+    # axs2.set_xticks(np.arange(len(top5_t_dict)), x_axis)
+    # axs2.set_xlabel('Mantissa', size='x-large', weight='bold')
+    # axs2.set_ylabel('Top5', size='x-large', weight='bold')
+    #
+    # plt.savefig(cfg.FINAL_RESULTS_DIR + "\\" + f"{cfg.EXPERIMENT}_Best_Results.png")
 
-    fig_size = (30, 30)
-    fig, (axs0, axs1, axs2) = plt.subplots(3, 1, figsize=fig_size)
-    x_axis = [0, 2, 4, 7, 15, 23]
-    fig.suptitle(f'{cfg.EXPERIMENT} Experiments Best Results', size='x-large', weight='bold')
-    fig.tight_layout(pad=8)
-
-    axs0.set_title('Best Loss Convolution Results', size='x-large', weight='bold')
-    axs0.plot(loss_t_dict, marker='.', color='blue')
-    axs0.set_xticks(np.arange(len(loss_t_dict)), x_axis)
-    axs0.set_xlabel('Mantissa', size='x-large', weight='bold')
-    axs0.set_ylabel('Loss', size='x-large', weight='bold')
-
-    axs1.set_title('Best Accuracy Top1 Convolution Results', size='x-large', weight='bold')
-    axs1.plot(top1_t_dict, marker='.', color='blue')
-    axs1.set_xticks(np.arange(len(top1_t_dict)), x_axis)
-    axs1.set_xlabel('Mantissa', size='x-large', weight='bold')
-    axs1.set_ylabel('Top1', size='x-large', weight='bold')
-
-    axs2.set_title('Best Accuracy Top5 Convolution Results', size='x-large', weight='bold')
-    axs2.plot(top5_t_dict, marker='.', color='blue')
-    axs2.set_xticks(np.arange(len(top5_t_dict)), x_axis)
-    axs2.set_xlabel('Mantissa', size='x-large', weight='bold')
-    axs2.set_ylabel('Top5', size='x-large', weight='bold')
-
-    plt.savefig(cfg.FINAL_RESULTS_DIR + "\\" + f"{cfg.EXPERIMENT}_Best_Results.png")
-
+    # save best results to csv file
+    pd.DataFrame(max_dict).to_csv(cfg.FINAL_RESULTS_DIR + "\\" + f"{cfg.EXPERIMENT}_Best_Results.csv")
 
 
 def main():
