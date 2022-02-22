@@ -18,7 +18,7 @@
 #done
 
 echo "delete old folders"
-for f in *baseline_results*; do
+for f in $(find . -type f -name 'baseline_results\*'); do
   if [ "$f" != '*.log' ]
   then
     echo $f
