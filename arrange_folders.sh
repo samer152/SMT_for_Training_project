@@ -28,5 +28,9 @@ cd baseline_results
 for f in $(find . -type d -name '*.log*'); do
   cd $f
   echo $f
+  for log in $(find . -type f -name '*.log*'); do
+    echo $log
+  done
+  cd ../../../
 done
 cd ../
