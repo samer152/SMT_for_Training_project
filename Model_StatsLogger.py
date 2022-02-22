@@ -125,7 +125,7 @@ class Model_StatsLogger:
         axs2.legend()
 
         graphs_path = os.path.join(cfg.LOG.graph_path[gpu], '{}_CM_Conv'.format(self.compute_flavour))
-        if os.sep == '\\' and '\\\\?\\' not in graphs_path:
+        if cfg.WINDOWS is True and os.sep == '\\' and '\\\\?\\' not in graphs_path:
             graphs_path = '\\\\?\\' + graphs_path
         save_path = os.path.join(graphs_path,'{}_CM_result'.format(self.compute_flavour))
         plt.savefig(save_path)

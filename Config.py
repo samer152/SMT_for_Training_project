@@ -9,6 +9,7 @@ from models.resnet_imagenet import resNet18_imagenet
 basedir, _ = os.path.split(os.path.abspath(__file__))
 basedir = os.path.join(basedir, 'data')
 
+WINDOWS = False
 EXPERIMENT = 'normal'
 DIR = 'baseline'
 

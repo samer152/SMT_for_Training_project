@@ -58,7 +58,10 @@ class Logger:
     def _update_log_file(self):
         self.close_log()
         for gpu_num in range(self.gpus):
-            self.log.append(open("{}\\GPU{}\\logfile.log".format(self.path, gpu_num), "a+"))
+            if cfg.WINDOWS is True:
+                self.log.append(open("{}\\GPU{}\\logfile.log".format(self.path, gpu_num), "a+"))
+            else:
+                self.log.append(open("{}/GPU{}/logfile.log".format(self.path, gpu_num), "a+"))
 
     def _create_log_dir(self, path=None, name=None, gpus = 1, create_logs = True):
         if path is None:
@@ -66,7 +69,10 @@ class Logger:
             if name is not None:
                 dir_name = dir_name + name + '_'
             dir_name = dir_name + '{date:%Y-%m-%d_%H-%M-%S}'.format(date=datetime.datetime.now())
-            self.path = '{}\\{}'.format(cfg.RESULTS_DIR, dir_name)
+            if cfg.WINDOWS is True:
+                self.path = '{}\\{}'.format(cfg.RESULTS_DIR, dir_name)
+            else:
+                self.path = '{}/{}'.format(cfg.RESULTS_DIR, dir_name)
         else:
             self.path = path
 
@@ -74,13 +80,16 @@ class Logger:
             os.mkdir('{}'.format(self.path))
 
         for gpu_num in range(gpus):
+            if cfg.WINDOWS is True:
+                gpu_dir = '{}\\GPU{}'.format(self.path, gpu_num)
+            else:
+                gpu_dir = '{}/GPU{}'.format(self.path, gpu_num)
 
-            gpu_dir = '{}\\GPU{}'.format(self.path, gpu_num)
             if create_logs:
                 os.mkdir('{}'.format(gpu_dir))
 
             graphs_path = os.path.join(gpu_dir, 'Graphs')
-            if os.sep == '\\' and '\\\\?\\' not in graphs_path:
+            if cfg.WINDOWS is True and os.sep == '\\' and '\\\\?\\' not in graphs_path:
                 graphs_path = '\\\\?\\' + graphs_path
             if create_logs:
                 os.mkdir('{}'.format(graphs_path))
@@ -88,13 +97,13 @@ class Logger:
 
             if gpu_num == 0:
                 self.models_path = os.path.join(gpu_dir, 'models')
-                if os.sep == '\\' and '\\\\?\\' not in self.models_path:
+                if cfg.WINDOWS is True and os.sep == '\\' and '\\\\?\\' not in self.models_path:
                     self.models_path = '\\\\?\\' + self.models_path
                 if create_logs:
                     os.mkdir('{}'.format(self.models_path))
 
             statistics_path = os.path.join(gpu_dir, 'Stats')
-            if os.sep == '\\' and '\\\\?\\' not in statistics_path:
+            if cfg.WINDOWS is True and os.sep == '\\' and '\\\\?\\' not in statistics_path:
                 statistics_path = '\\\\?\\' + statistics_path
             if create_logs:
                 os.mkdir('{}'.format(statistics_path))

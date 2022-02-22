@@ -63,7 +63,6 @@ class NeuralNet:
         self.criterion = nn.CrossEntropyLoss()
         self.criterion = self.criterion.cuda() if device == 'cuda' else self.criterion
 
-
         self.model = cfg.MODELS[self.arch](compute_flavour=compute_flavour, device=device, verbose=verbose)
         self.model = self.model.cuda() if device == 'cuda' else self.model
         self.model_stats = Model_StatsLogger(compute_flavour, seed, verbose)
@@ -74,7 +73,7 @@ class NeuralNet:
 
         for gpu_num in range(gpus):
             graphs_path = os.path.join(cfg.LOG.graph_path[gpu_num], '{}_CM_Conv'.format(compute_flavour))
-            if os.sep == '\\' and '\\\\?\\' not in graphs_path:
+            if cfg.WINDOWS is True and os.sep == '\\' and '\\\\?\\' not in graphs_path:
                 graphs_path = '\\\\?\\' + graphs_path
             os.mkdir('{}'.format(graphs_path))
 
@@ -87,7 +86,7 @@ class NeuralNet:
                     if file == self.model_path:
                         self.model_path = os.path.join(path, file)
                         break
-            if os.sep == '\\' and '\\\\?\\' not in self.model_path:
+            if cfg.WINDOWS is True and os.sep == '\\' and '\\\\?\\' not in self.model_path:
                 self.model_path = '\\\\?\\' + self.model_path
             print('Loading model from {}'.format(self.model_path))
             if os.path.isfile(self.model_path):
@@ -205,7 +204,10 @@ class NeuralNet:
             filename = '{}_epoch-{}_top1-{}.pth'.format(self.arch, epoch, round(best_top1_acc, 2))
         else:
             filename = '{}_epoch-{}_{}_top1-{}.pth'.format(self.arch, epoch, desc, round(best_top1_acc, 2))
-        path = '{}\\{}'.format(cfg.LOG.models_path, filename)
+        if cfg.WINDOWS is True:
+            path = '{}\\{}'.format(cfg.LOG.models_path, filename)
+        else:
+            path = '{}/{}'.format(cfg.LOG.models_path, filename)
 
         state = {'arch': self.arch,
                  'epoch': epoch + 1,
