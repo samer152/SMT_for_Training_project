@@ -20,11 +20,14 @@
 echo "delete old folders"
 for f in $(find . -type d -name 'baseline_results*epochs*'); do
     echo $f
+    rm $f
 done
 
 echo "change log file names"
 cd baseline_results
-for f in $(find . -type f -name '*.log*'); do
+for f in $(find . -type d -name '*.log*'); do
+  cd $f
   echo $f
+  cd ../../../../
 done
 cd ../
