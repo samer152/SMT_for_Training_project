@@ -18,14 +18,13 @@
 #done
 
 echo "delete old folders"
-for f in $(find . -type f -name 'baseline_results\*'); do
-  if [ "$f" != '*.log' ]
-  then
+for f in $(find . -type d -name 'baseline_results*epochs*'); do
     echo $f
-  fi
 done
 
 echo "change log file names"
+cd baseline_results
 for f in $(find . -type f -name '*.log*'); do
   echo $f
 done
+cd ../
