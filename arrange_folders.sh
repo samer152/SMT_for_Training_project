@@ -1,6 +1,6 @@
 #!/bin/bash
 
-for f in *baseline_results\*!(*.log*); do
+for f in *baseline_results\*; do
   echo $f
   echo "${f//\\//}"
   if [ "$f" != '*.log' ]
