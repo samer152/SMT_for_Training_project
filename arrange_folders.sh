@@ -9,3 +9,8 @@ for f in *baseline_results*; do
   fi
   mv -- "$f"/* "${f//\\//}"
 done
+
+for f in *baseline_results*.log*; do
+  echo $f
+  mv -- "$f" "${f//\\//}"
+done
