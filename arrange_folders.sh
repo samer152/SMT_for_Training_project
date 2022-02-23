@@ -23,15 +23,33 @@
 #    rm -r $f
 #done
 
-echo "change log file names"
-cd baseline_results
-for f in $(find . -type d -name '*.log*'); do
-  cd $f
+#echo "change log file names"
+#cd baseline_results
+#for f in $(find . -type d -name '*.log*'); do
+#  cd $f
+#  echo $f
+#  for log in $(find . -type f -name '*.log*'); do
+#    echo "mv $log logfile.log"
+#    mv "$log" "logfile.log"
+#  done
+#  cd ../../../
+#done
+#cd ../
+
+echo "remove unrelevant pth files"
+for f in $(find . -type f -name '*2_Compute*.pth'); do
   echo $f
-  for log in $(find . -type f -name '*.log*'); do
-    echo "mv $log logfile.log"
-    mv "$log" "logfile.log"
-  done
-  cd ../../../
+  rm $f
 done
-cd ../
+for f in $(find . -type f -name '*1_Compute*.pth'); do
+  echo $f
+  rm $f
+done
+for f in $(find . -type f -name '*3_Compute*.pth'); do
+  echo $f
+  rm $f
+done
+for f in $(find . -type f -name '*4_Compute*.pth'); do
+  echo $f
+  rm $f
+done
