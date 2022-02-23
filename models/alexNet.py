@@ -70,7 +70,7 @@ def alexNet_svhn(compute_flavour, device, verbose):
     # while the other conv layer may use converted data-type for matmul
 class AlexNetAsym(nn.Module):
     def __init__(self, compute_flavour, device, verbose, num_classes):
-        super(AlexNet, self).__init__()
+        super(AlexNetAsym, self).__init__()
         self.compute_flavour = compute_flavour
         self.device = device
         self.verbose = verbose
