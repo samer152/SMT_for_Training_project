@@ -19,8 +19,9 @@ parser = argparse.ArgumentParser(description='Samer Kurzum, samer152@gmail.com',
 model_names = ['lenet5-cifar10',
                'alexnet-cifar10',
                'alexnet-cifar100',
-               'alexnet-asym-cifar100',
-               'resnet18-asym-cifar100',
+               'alexnetAsym-cifar100',
+               'resnet18-cifar100',
+               'resnet18Asym-cifar100',
                'resnet18-imagenet'
                ]
 

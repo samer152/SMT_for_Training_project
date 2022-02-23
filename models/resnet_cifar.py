@@ -389,5 +389,5 @@ def resnet18Asym(pretrained=False, progress=True, **kwargs):
     return _resnet_asym('resnet18', BasicBlock, [2, 2, 2, 2], pretrained, progress,
                    **kwargs)
 
-def resNet18Asym_cifar100(compute_flavour, device, verbose):
+def resnet18Asym_cifar100(compute_flavour, device, verbose):
     return resnet18Asym(compute_flavour=compute_flavour, device=device, verbose=verbose, num_classes=100)

@@ -120,5 +120,5 @@ class AlexNetAsym(nn.Module):
         x = self.classifier(x)
         return x
 
-def alexNetAsym_cifar100(compute_flavour, device, verbose):
+def alexnetAsym_cifar100(compute_flavour, device, verbose):
     return AlexNetAsym(compute_flavour, device, verbose, num_classes=100)
