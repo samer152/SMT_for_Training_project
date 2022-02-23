@@ -1,13 +1,18 @@
 import os
-import numpy
 import numpy as np
 import torch
 import matplotlib
+
+from utils import calc_hist
 matplotlib.use('Agg')
 from matplotlib import pyplot as plt
 import csv
 from matplotlib.ticker import PercentFormatter
 import Config as cfg
+#supporting weights plotting
+from models.alexNet import AlexNet
+from models.resnet_cifar import ResNet
+from customConv2d import customConv2d
 
 def set_plot_attributes(ax, xticks, yticks, title, xlabel, ylabel):
     #loss
@@ -120,6 +125,29 @@ class Model_StatsLogger:
         plt.savefig(os.path.join(graphs_path,'{}_CM_result.png'.format(self.compute_flavour)))
 
         plt.close()
+
+    def plot_weights_hist(self, net, gpu = 0):
+        #AlexNet has 5 conv layers
+        if(type(AlexNet)==type(net)):
+            fig, (axs0, axs1, axs2, axs3, axs4) = plt.subplots(5, 1)
+            axs = [axs0, axs1, axs2, axs3, axs4]
+            fig.suptitle('{} CM Convolution Weights Histogram'.format(self.compute_flavour), size='x-large', weight='bold')
+            fig.tight_layout(pad=8)
+            i = 0
+            for m in net.features():
+                if type(m) == customConv2d:
+                    conv_num = 'conv'+str(i)
+                    axs[i].hist(x=torch.flatten(m.weight.detach()).cpu(), bins='auto', alpha=0.7, rwidth=0.85)
+                    axs[i].grid(axis='y', alpha=0.75)
+                    axs[i].xlabel('Weights')
+                    axs[i].ylabel('Num of shows')
+                    axs[i].title(f'{conv_num} - Weights Histogram')
+                    i = i + 1 
+            graphs_path = os.path.join(cfg.LOG.graph_path[gpu], '{}_CM_Conv'.format(self.compute_flavour))
+            plt.savefig(os.path.join(graphs_path,'{}_CM_Weights_Dist.png'.format(self.compute_flavour)))
+
+            plt.close()
+
 
     def print_verbose(self, msg, v):
         if self.verbose >= v:
