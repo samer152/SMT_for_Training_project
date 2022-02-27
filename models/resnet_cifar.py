@@ -6,26 +6,36 @@ from utils import load_state_dict_from_url
 
 __all__ = ['ResNet', 'resnet18']
 
-
 model_urls = {
     'resnet18': 'https://download.pytorch.org/models/resnet18-5c106cde.pth',
 }
 
 
-def conv3x3(in_planes, out_planes, stride=1, groups=1, dilation=1, compute_flavour=0):
+def conv3x3(in_planes, out_planes, stride=1, groups=1, dilation=1, compute_flavour=0, custom=True):
     """3x3 convolution with padding"""
-    return customConv2d(in_planes, out_planes, kernel_size=3, stride=stride,
-                        padding=dilation, groups=groups, bias=False, dilation=dilation, compute_flavour=compute_flavour)
+    if custom is True:
+        return customConv2d(in_planes, out_planes, kernel_size=3, stride=stride,
+                            padding=dilation, groups=groups, bias=False, dilation=dilation,
+                            compute_flavour=compute_flavour)
+    else:
+        return nn.Conv2d(in_planes, out_planes, kernel_size=3, stride=stride,
+                         padding=dilation, groups=groups, bias=False, dilation=dilation)
 
-def conv1x1(in_planes, out_planes, stride=1, compute_flavour=0):
+
+def conv1x1(in_planes, out_planes, stride=1, compute_flavour=0, custom=True):
     """1x1 convolution"""
-    return customConv2d(in_planes, out_planes, kernel_size=1, stride=stride, bias=False, compute_flavour=compute_flavour)
+    if custom is True:
+        return customConv2d(in_planes, out_planes, kernel_size=1, stride=stride, bias=False,
+                            compute_flavour=compute_flavour)
+    else:
+        return nn.Conv2d(in_planes, out_planes, kernel_size=1, stride=stride, bias=False)
+
 
 class BasicBlock(nn.Module):
     expansion = 1
 
     def __init__(self, inplanes, planes, stride=1, downsample=None, groups=1,
-                 base_width=64, dilation=1, norm_layer=None, compute_flavour=0):
+                 base_width=64, dilation=1, norm_layer=None, compute_flavour=0, custom=True):
         super(BasicBlock, self).__init__()
         self.compute_flavour = compute_flavour
 
@@ -36,14 +46,13 @@ class BasicBlock(nn.Module):
         if dilation > 1:
             raise NotImplementedError("Dilation > 1 not supported in BasicBlock")
         # Both self.conv1 and self.downsample layers downsample the input when stride != 1
-        self.conv1 = conv3x3(inplanes, planes, stride, compute_flavour=compute_flavour)
+        self.conv1 = conv3x3(inplanes, planes, stride, compute_flavour=compute_flavour, custom=custom)
         self.bn1 = norm_layer(planes)
         self.relu = nn.ReLU(inplace=True)
-        self.conv2 = conv3x3(planes, planes, compute_flavour=compute_flavour)
+        self.conv2 = conv3x3(planes, planes, compute_flavour=compute_flavour, custom=custom)
         self.bn2 = norm_layer(planes)
         self.downsample = downsample
         self.stride = stride
-
 
     def forward(self, x):
         identity = x
@@ -64,7 +73,6 @@ class BasicBlock(nn.Module):
         return out
 
 
-
 class Bottleneck(nn.Module):
     # Bottleneck in torchvision places the stride for downsampling at 3x3 convolution(self.conv2)
     # while original implementation places the stride at the first 1x1 convolution(self.conv1)
@@ -75,7 +83,7 @@ class Bottleneck(nn.Module):
     expansion = 4
 
     def __init__(self, inplanes, planes, stride=1, downsample=None, groups=1,
-                 base_width=64, dilation=1, norm_layer=None, compute_flavour=0):
+                 base_width=64, dilation=1, norm_layer=None, compute_flavour=0, custom=True):
         super(Bottleneck, self).__init__()
         self.threads = compute_flavour
 
@@ -83,16 +91,15 @@ class Bottleneck(nn.Module):
             norm_layer = nn.BatchNorm2d
         width = int(planes * (base_width / 64.)) * groups
         # Both self.conv2 and self.downsample layers downsample the input when stride != 1
-        self.conv1 = conv1x1(inplanes, width, compute_flavour=compute_flavour)
+        self.conv1 = conv1x1(inplanes, width, compute_flavour=compute_flavour, custom=custom)
         self.bn1 = norm_layer(width)
-        self.conv2 = conv3x3(width, width, stride, groups, dilation, compute_flavour=compute_flavour)
+        self.conv2 = conv3x3(width, width, stride, groups, dilation, compute_flavour=compute_flavour, custom=custom)
         self.bn2 = norm_layer(width)
-        self.conv3 = conv1x1(width, planes * self.expansion, compute_flavour=compute_flavour)
+        self.conv3 = conv1x1(width, planes * self.expansion, compute_flavour=compute_flavour, custom=custom)
         self.bn3 = norm_layer(planes * self.expansion)
         self.relu = nn.ReLU(inplace=True)
         self.downsample = downsample
         self.stride = stride
-
 
     def forward(self, x):
         identity = x
@@ -111,7 +118,6 @@ class Bottleneck(nn.Module):
         if self.downsample is not None:
             identity = self.downsample(x)
 
-
         out += identity
         out = self.relu(out)
 
@@ -122,7 +128,7 @@ class ResNet(nn.Module):
 
     def __init__(self, block, layers, num_classes=1000, zero_init_residual=False,
                  groups=1, width_per_group=64, replace_stride_with_dilation=None,
-                 norm_layer=None, compute_flavour=0, device='cuda', verbose=0, experiment='normal'):
+                 norm_layer=None, compute_flavour=0, device='cuda', verbose=0, layer=0):
         super(ResNet, self).__init__()
 
         self.compute_flavour = compute_flavour
@@ -144,21 +150,41 @@ class ResNet(nn.Module):
                              "or a 3-element tuple, got {}".format(replace_stride_with_dilation))
         self.groups = groups
         self.base_width = width_per_group
-        #TODO: changed for CIFAR100 (from original Imagenet parameters)
+        # TODO: changed for CIFAR100 (from original Imagenet parameters)
+
+        first_conv_custom = True if layer == 5 or layer == 0 else False
         self.conv1 = customConv2d(3, self.inplanes, kernel_size=3, stride=1, padding=1, bias=False,
                                   compute_flavour=self.compute_flavour,
-                                  device=self.device, verbose=self.verbose)
+                                  device=self.device, verbose=self.verbose) if first_conv_custom else \
+                    nn.Conv2d(3, self.inplanes, kernel_size=3, stride=1, padding=1, bias=False)
 
         self.bn1 = norm_layer(self.inplanes)
         self.relu = nn.ReLU(inplace=True)
         self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
-        self.layer1 = self._make_layer(block, 64, layers[0], compute_flavour=self.compute_flavour)
+
+        custom_1, custom_2, custom_3, custom_4 = True, True, True, True
+
+        if layer == 1:
+            custom_1, custom_2, custom_3, custom_4 = True, False, False, False
+        elif layer == 2:
+            custom_1, custom_2, custom_3, custom_4 = False, True, False, False
+        elif layer == 3:
+            custom_1, custom_2, custom_3, custom_4 = False, False, True, False
+        elif layer == 4:
+            custom_1, custom_2, custom_3, custom_4 = False, False, False, True
+        elif layer == 5:
+            custom_1, custom_2, custom_3, custom_4 = False, False, False, False
+
+        self.layer1 = self._make_layer(block, 64, layers[0], compute_flavour=self.compute_flavour, custom=custom_1)
         self.layer2 = self._make_layer(block, 128, layers[1], stride=2,
-                                       dilate=replace_stride_with_dilation[0], compute_flavour=self.compute_flavour)
+                                       dilate=replace_stride_with_dilation[0], compute_flavour=self.compute_flavour,
+                                       custom=custom_2)
         self.layer3 = self._make_layer(block, 256, layers[2], stride=2,
-                                       dilate=replace_stride_with_dilation[1], compute_flavour=self.compute_flavour)
+                                       dilate=replace_stride_with_dilation[1], compute_flavour=self.compute_flavour,
+                                       custom=custom_3)
         self.layer4 = self._make_layer(block, 512, layers[3], stride=2,
-                                       dilate=replace_stride_with_dilation[2], compute_flavour=self.compute_flavour)
+                                       dilate=replace_stride_with_dilation[2], compute_flavour=self.compute_flavour,
+                                       custom=custom_4)
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
         self.fc = nn.Linear(512 * block.expansion, num_classes)
 
@@ -179,7 +205,7 @@ class ResNet(nn.Module):
                 elif isinstance(m, BasicBlock):
                     nn.init.constant_(m.bn2.weight, 0)
 
-    def _make_layer(self, block, planes, blocks, stride=1, dilate=False, compute_flavour=0, experiment='normal'):
+    def _make_layer(self, block, planes, blocks, stride=1, dilate=False, compute_flavour=0, custom=True):
         norm_layer = self._norm_layer
         downsample = None
         previous_dilation = self.dilation
@@ -188,18 +214,19 @@ class ResNet(nn.Module):
             stride = 1
         if stride != 1 or self.inplanes != planes * block.expansion:
             downsample = nn.Sequential(
-                conv1x1(self.inplanes, planes * block.expansion, stride, compute_flavour),
+                conv1x1(self.inplanes, planes * block.expansion, stride, compute_flavour, custom),
                 norm_layer(planes * block.expansion),
             )
 
         layers = []
         layers.append(block(self.inplanes, planes, stride, downsample, self.groups,
-                            self.base_width, previous_dilation, norm_layer, compute_flavour=compute_flavour))
+                            self.base_width, previous_dilation, norm_layer, compute_flavour=compute_flavour,
+                            custom=custom))
         self.inplanes = planes * block.expansion
         for _ in range(1, blocks):
             layers.append(block(self.inplanes, planes, groups=self.groups,
                                 base_width=self.base_width, dilation=self.dilation,
-                                norm_layer=norm_layer, compute_flavour=compute_flavour))
+                                norm_layer=norm_layer, compute_flavour=compute_flavour, custom=custom))
 
         return nn.Sequential(*layers)
 
@@ -208,8 +235,8 @@ class ResNet(nn.Module):
         x = self.conv1(x)
         x = self.bn1(x)
         x = self.relu(x)
-        #TODO: changed for CIFAR100 (from original Imagenet parameters)
-        #x = self.maxpool(x)
+        # TODO: changed for CIFAR100 (from original Imagenet parameters)
+        # x = self.maxpool(x)
 
         x = self.layer1(x)
         x = self.layer2(x)
@@ -224,7 +251,6 @@ class ResNet(nn.Module):
 
     def forward(self, x):
         return self._forward_impl(x)
-
 
 
 def _resnet(arch, block, layers, pretrained, progress, **kwargs):
@@ -248,10 +274,10 @@ def resnet18(pretrained=False, progress=True, **kwargs):
                    **kwargs)
 
 
-
-#resnet18
+# resnet18
 def resNet18_cifar10(compute_flavour, device, verbose):
     return resnet18(compute_flavour=compute_flavour, device=device, verbose=verbose, num_classes=10)
 
-def resNet18_cifar100(compute_flavour, device, verbose):
-    return resnet18(compute_flavour=compute_flavour, device=device, verbose=verbose, num_classes=100)
+
+def resNet18_cifar100(compute_flavour, device, verbose, layer):
+    return resnet18(compute_flavour=compute_flavour, device=device, verbose=verbose, num_classes=100, layer=layer)

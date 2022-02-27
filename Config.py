@@ -10,8 +10,8 @@ basedir, _ = os.path.split(os.path.abspath(__file__))
 basedir = os.path.join(basedir, 'data')
 
 WINDOWS = False
-EXPERIMENT = 'backward'
-DIR = 'backward'
+EXPERIMENT = 'normal'
+DIR = 'layers'
 
 MODELS = {'lenet5_cifar10': leNet_cifar10,
           'alexnet_cifar10': alexNet_cifar10,

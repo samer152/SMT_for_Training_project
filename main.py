@@ -33,6 +33,8 @@ parser.add_argument('--epochs', default=10, type=int,
                     help='number of epochs in training mode')
 parser.add_argument('--device', choices=['cpu', 'cuda'], default='cuda',
                     help='device to run on')
+parser.add_argument('--layer', default=0, type=int,
+                    help='layer to reduce representation. if 0 - all layers')
 parser.add_argument('--LR', default=0.1, type=float,
                     help='starting learning rate')
 parser.add_argument('--LRD', default=0, type=int,
@@ -101,7 +103,7 @@ def distributed_training(gpu, net, dataset_, epochs, batch_size, logger_path, se
 
 def train_network(arch, dataset, epochs, batch_size, compute_flavour, seed,
                   LR, LRD, WD, MOMENTUM, GAMMA, MILESTONES, device, verbose, distributed, gpus, desc, save_all_states,
-                  model_path, action):
+                  model_path, action, layer=0):
     if seed is None:
         seed = torch.random.initial_seed() & ((1 << 63) - 1)
     name_str = '{}_{}'.format(arch, dataset)
@@ -132,7 +134,7 @@ def train_network(arch, dataset, epochs, batch_size, compute_flavour, seed,
     # build model
     net = NeuralNet(arch, dataset, epochs, compute_flavour, seed,
                     LR, LRD, WD, MOMENTUM, GAMMA, MILESTONES, device, verbose, gpus_num, distributed, save_all_states,
-                    model_path)
+                    model_path, layer)
 
     if action == 'TRAINING':
         cfg.LOG.write_title('TRAINING NETWORK', terminal=(gpu == 0), gpu_num=gpu)
@@ -193,7 +195,7 @@ def main():
                       GAMMA=args.GAMMA, MILESTONES=args.MILESTONES,
                       device=args.device, verbose=args.v, distributed=args.distributed, gpus=[int(x) for x in args.gpu],
                       desc=args.desc, save_all_states=args.save_all_states, model_path=args.model_path,
-                      action=args.action)
+                      action=args.action, layer=args.layer)
     else:
         raise NotImplementedError
 

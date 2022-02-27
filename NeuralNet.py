@@ -17,7 +17,7 @@ from Model_StatsLogger import Model_StatsLogger
 
 class NeuralNet:
     def __init__(self, arch, dataset, epochs, compute_flavour, seed,
-                      LR, LRD, WD, MOMENTUM, GAMMA, MILESTONES, device, verbose, gpus, distributed, save_all_states, model_path):
+                      LR, LRD, WD, MOMENTUM, GAMMA, MILESTONES, device, verbose, gpus, distributed, save_all_states, model_path, layer=0):
 
         for gpu_num in range(gpus):
             cfg.LOG.write('NeuralNet __init__: arch={}, dataset={} compute_flavour={}, epochs={},'
@@ -62,8 +62,10 @@ class NeuralNet:
         self.dataset = dataset
         self.criterion = nn.CrossEntropyLoss()
         self.criterion = self.criterion.cuda() if device == 'cuda' else self.criterion
-
-        self.model = cfg.MODELS[self.arch](compute_flavour=compute_flavour, device=device, verbose=verbose)
+        if self.arch == 'resnet18_cifar100':
+            self.model = cfg.MODELS[self.arch](compute_flavour=compute_flavour, device=device, verbose=verbose, layer=layer)
+        else:
+            self.model = cfg.MODELS[self.arch](compute_flavour=compute_flavour, device=device, verbose=verbose)
         self.model = self.model.cuda() if device == 'cuda' else self.model
         self.model_stats = Model_StatsLogger(compute_flavour, seed, verbose)
         self.model_optimizer = optim.SGD(self.model.parameters(), lr=LR, weight_decay=WD, momentum=MOMENTUM)

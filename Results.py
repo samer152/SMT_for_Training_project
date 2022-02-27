@@ -40,7 +40,7 @@ def set_plot_attributes(ax, xticks, yticks, title, xlabel, ylabel):
 
 
 def plot_results(csv_dict, gpu=0):
-    num_points = 50
+    num_points = 200
     epochs = np.arange(0, num_points)
     if num_points + 1 > 120:
         xticks = np.arange(0, num_points + 10, 10)
@@ -57,10 +57,10 @@ def plot_results(csv_dict, gpu=0):
 
     fig_size = (50, 50)
     fig, (axs0, axs1, axs2, axs3, axs4, axs5) = plt.subplots(6, 1, figsize=fig_size)
-    fig.suptitle(f'{cfg.EXPERIMENT} Experiments Convolution Results', size='x-large', weight='bold')
+    fig.suptitle(f'{cfg.DIR} Experiments Convolution Results', size='x-large', weight='bold')
     fig.tight_layout(pad=8)
 
-    mantissa_list = [23, 0, 2, 4, 7, 15]
+    mantissa_list = [23, 0, 2, 4, 7]
 
     for key in csv_dict.keys():
         compute_flavour = int(key.split("_")[0])
@@ -100,12 +100,12 @@ def plot_results(csv_dict, gpu=0):
         axs5.plot(epochs, [v*100 for v in csv_dict[key]['Top5_t'].values()], marker='.', label=mantissa)
         axs5.legend()
 
-    plt.savefig(cfg.FINAL_RESULTS_DIR + "\\" + f"{cfg.EXPERIMENT}_Results.png")
+    plt.savefig(cfg.FINAL_RESULTS_DIR + "\\" + f"{cfg.DIR}_Results.png")
 
 
 def plot_best_results(csv_dict, inference=False, gpu=0):
 
-    mantissa = ['0', '2', '4', '7', '15', '23']
+    mantissa = ['0', '2', '4', '7', '23']
 
     if not inference:
         max_dict = {}
@@ -169,13 +169,13 @@ def plot_best_results(csv_dict, inference=False, gpu=0):
     # plt.savefig(cfg.FINAL_RESULTS_DIR + "\\" + f"{cfg.EXPERIMENT}_Best_Results.png")
 
     # save best results to csv file
-    pd.DataFrame(max_dict).to_csv(cfg.FINAL_RESULTS_DIR + "\\" + f"{cfg.EXPERIMENT}_Best_Results.csv")
+    pd.DataFrame(max_dict).to_csv(cfg.FINAL_RESULTS_DIR + "\\" + f"{cfg.DIR}_Best_Results.csv")
 
 
 def main():
     csv_dict = load_csv_files(inference=False)
     print(csv_dict)
-    # plot_results(csv_dict)
+    plot_results(csv_dict)
     plot_best_results(csv_dict, inference=False)
 
 
