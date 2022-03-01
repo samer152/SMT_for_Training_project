@@ -23,7 +23,7 @@ def custom_matmul(input, weight, compute_flavour):
         return ADQ_Example.apply(input, weight)
     # Resiliency compute flavours
     elif compute_flavour == 2:
-        # BF16
+        # BF16 - NOTE: plot distributions of matrices
         return BF16Matmul.apply(input, weight)
     elif compute_flavour == 4:
         # BF14

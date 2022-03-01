@@ -62,7 +62,11 @@ parser.add_argument('--v', default=0, type=int, help='verbosity level (0,1,2) (d
 parser.add_argument('--hist', default=0,
                     help='Choose whether to plot weights histograms')
 
-
+# Global arrays to store the matrices values distribution
+fwd_dist = [] 
+bwd_igrad_dist = [] 
+bwd_wgrad_dist = [] 
+str_dist_flag = 0
 
 def distributed_training(gpu, net, dataset_, epochs, batch_size, logger_path, seed):
     rank = gpu
@@ -139,9 +143,15 @@ def train_network(arch, dataset, epochs, batch_size, compute_flavour, seed,
         (train_gen, _), (_, _) = dataset_.trainset(batch_size=batch_size, max_samples=None, random_seed=16)
         net.update_batch_size(len(train_gen), len(test_gen))
         for epoch in range(0, epochs):
+                #on each 10 epochs store the matrices distributions
+                global str_dist_flag
+                if (epoch%10==0):
+                    str_dist_flag = 1
                 net.train(epoch, train_gen)
+                str_dist_flag = 0
                 net.test_set(epoch, test_gen)
 
+        # BF16 - export_stats() also plot distributions
         net.export_stats()
         net.plot_results()
         if(hist):
