@@ -1,11 +1,16 @@
 import math
 from torch.autograd import Function
 import torch
+from main import bwd_igrad_dist, bwd_wgrad_dist, fwd_dist, str_dist_flag
 from ConvertType import convert_to_bf16, convert_to_nvtf, convert_to_bf14, convert_to_bf12, convert_to_bf10, convert_to_pxr24, convert_to_bf9
 
+# plot distributions only when using BF16Matmul 
 class BF16Matmul(Function):
     @staticmethod
     def forward(ctx, inputs, weights):
+        global fwd_dist
+        global str_dist_flag
+        
         ctx.save_for_backward(inputs, weights)
 
         # convert to BF16
@@ -13,11 +18,18 @@ class BF16Matmul(Function):
         inputs_bf16 = convert_to_bf16(inputs)
 
         weights_bf16 = weights_bf16.t().contiguous()
-        return inputs_bf16.matmul(weights_bf16)
+        res = inputs_bf16.matmul(weights_bf16)
+        if (str_dist_flag == 1):
+            fwd_dist.append(res)
+        return res
 
     @staticmethod
     def backward(ctx, grad_output):
         with torch.no_grad():
+
+            global bwd_igrad_dist
+            global bwd_wgrad_dist
+            global str_dist_flag
 
             inputs, weights = ctx.saved_tensors
 
@@ -29,6 +41,11 @@ class BF16Matmul(Function):
             grad_output_new = grad_output_bf16.transpose(1,2).contiguous()
             weights_gradients = grad_output_new.matmul(inputs_bf16)
             weights_gradients = weights_gradients.sum(0)
+            
+            if(str_dist_flag ==1 ):
+                bwd_wgrad_dist.append(weights_gradients)
+                bwd_igrad_dist.append(inputs_gradients)
+            
             return inputs_gradients, weights_gradients
 
 class BF14Matmul(Function):

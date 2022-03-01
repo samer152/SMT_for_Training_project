@@ -3,7 +3,7 @@ from torch.autograd import Function
 import torch
 from ConvertType import convert_to_bf12, convert_to_bf10, convert_to_bf9
 
-#NOTE: use BF9/BF10 in a specific pass and for the other two use BF12 (as been seen that it doesn't affe) 
+#NOTE: use BF9/BF10 in a specific pass and for the other two use BF12 (as been seen that it doesn't affect the results) 
 
 class BF9Matmul_fwd(Function):
     @staticmethod
