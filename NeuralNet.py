@@ -221,6 +221,10 @@ class NeuralNet:
         #plot results for each convolution
         self.model_stats.plot_results(gpu=gpu)
 
+    def plot_weights_hist(self, gpu = 0):
+        #plot results for each convolution
+        self.model_stats.plot_weights_hist(self, gpu=gpu)
+
 
     def distribute_model(self, gpu):
         self.criterion = self.criterion.cuda(gpu)

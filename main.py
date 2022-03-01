@@ -59,6 +59,8 @@ parser.add_argument('--distributed', default=0, type=int,
 parser.add_argument('--save_all_states', default=0, type=int, help='save states for every epoch')
 parser.add_argument('--model_path', default=None, help='model path to load')
 parser.add_argument('--v', default=0, type=int, help='verbosity level (0,1,2) (default:0)')
+parser.add_argument('--hist', default=0,
+                    help='Choose whether to plot weights histograms')
 
 
 
@@ -99,7 +101,8 @@ def distributed_training(gpu, net, dataset_, epochs, batch_size, logger_path, se
 
 
 def train_network(arch, dataset, epochs, batch_size, compute_flavour, seed,
-                  LR, LRD, WD, MOMENTUM, GAMMA, MILESTONES, device, verbose, distributed, gpus, desc, save_all_states, model_path):
+                  LR, LRD, WD, MOMENTUM, GAMMA, MILESTONES, device, verbose, 
+                  distributed, gpus, desc, save_all_states, model_path, hist):
 
     if seed is None:
         seed = torch.random.initial_seed() & ((1 << 63) - 1)
@@ -141,6 +144,8 @@ def train_network(arch, dataset, epochs, batch_size, compute_flavour, seed,
 
         net.export_stats()
         net.plot_results()
+        if(hist):
+            net.plot_weights_hist()
     else:
 
         #distributed training
@@ -171,7 +176,7 @@ def main():
                               LR=args.LR, LRD=args.LRD, WD=args.WD, MOMENTUM=args.MOMENTUM,
                               GAMMA=args.GAMMA, MILESTONES=args.MILESTONES,
                               device=args.device, verbose=args.v, distributed=args.distributed, gpus=[int(x) for x in args.gpu],
-                              desc=args.desc, save_all_states=args.save_all_states, model_path=args.model_path)
+                              desc=args.desc, save_all_states=args.save_all_states, model_path=args.model_path, hist=args.hist)
     else:
         raise NotImplementedError
 
