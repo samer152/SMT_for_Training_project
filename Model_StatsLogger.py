@@ -3,7 +3,6 @@ import numpy as np
 import torch
 import matplotlib
 
-from utils import calc_hist
 matplotlib.use('Agg')
 from matplotlib import pyplot as plt
 import csv
