@@ -39,7 +39,7 @@ def set_plot_attributes(ax, xticks, yticks, title, xlabel, ylabel):
     ax.grid()
 
 
-def plot_results(csv_dict, gpu=0):
+def plot_results(csv_dict, gpu=0, layer=False):
     num_points = 200
     epochs = np.arange(0, num_points)
     if num_points + 1 > 120:
@@ -60,52 +60,65 @@ def plot_results(csv_dict, gpu=0):
     fig.suptitle(f'{cfg.DIR} Experiments Convolution Results', size='x-large', weight='bold')
     fig.tight_layout(pad=8)
 
-    mantissa_list = [23, 0, 2, 4, 7]
+    if layer is False:
+        # x_label
+        x_list = [23, 0, 2, 4, 7]
+    else:
+        # Layer
+        x_list = [0, 1, 2, 3, 4, 5]
 
     for key in csv_dict.keys():
-        compute_flavour = int(key.split("_")[0])
-        mantissa = mantissa_list[compute_flavour]
+
+        if layer is False:
+            # Compute flavour
+            index = int(key.split("_")[0])
+        else:
+            index = int(key.split("_")[-1][:-4])
+        x_label = x_list[index]
 
         # loss train
         set_plot_attributes(axs0, xticks, yticks_loss, 'Loss Train', 'Epoch', 'Loss')
-        axs0.plot(epochs, csv_dict[key]['Loss_l'].values(), marker='.', label=mantissa)
+        axs0.plot(epochs, csv_dict[key]['Loss_l'].values(), marker='.', label=x_label)
         axs0.legend()
 
         # top1 train
         set_plot_attributes(axs1, xticks, yticks_top1, 'Accuracy Top1 Train', 'Epoch', 'Accuracy')
         axs1.yaxis.set_major_formatter(PercentFormatter())
-        axs1.plot(epochs, [v*100 for v in csv_dict[key]['Top1_l'].values()], marker='.', label=mantissa)
+        axs1.plot(epochs, [v*100 for v in csv_dict[key]['Top1_l'].values()], marker='.', label=x_label)
         axs1.legend()
 
         # top5 train
         set_plot_attributes(axs2, xticks, yticks_top5, 'Accuracy Top5 Train', 'Epoch', 'Accuracy')
         axs2.yaxis.set_major_formatter(PercentFormatter())
-        axs2.plot(epochs, [v*100 for v in csv_dict[key]['Top5_l'].values()], marker='.', label=mantissa)
+        axs2.plot(epochs, [v*100 for v in csv_dict[key]['Top5_l'].values()], marker='.', label=x_label)
         axs2.legend()
 
         # loss test
         set_plot_attributes(axs3, xticks, yticks_loss, 'Loss Test', 'Epoch', 'Loss')
-        axs3.plot(epochs, csv_dict[key]['Loss_t'].values(), marker='.', label=mantissa)
+        axs3.plot(epochs, csv_dict[key]['Loss_t'].values(), marker='.', label=x_label)
         axs3.legend()
 
         # top1 test
         set_plot_attributes(axs4, xticks, yticks_top1, 'Accuracy Top1 Test', 'Epoch', 'Accuracy')
         axs4.yaxis.set_major_formatter(PercentFormatter())
-        axs4.plot(epochs, [v*100 for v in csv_dict[key]['Top1_t'].values()], marker='.', label=mantissa)
+        axs4.plot(epochs, [v*100 for v in csv_dict[key]['Top1_t'].values()], marker='.', label=x_label)
         axs4.legend()
 
         # top5 test
         set_plot_attributes(axs5, xticks, yticks_top5, 'Accuracy Top5 Test', 'Epoch', 'Accuracy')
         axs5.yaxis.set_major_formatter(PercentFormatter())
-        axs5.plot(epochs, [v*100 for v in csv_dict[key]['Top5_t'].values()], marker='.', label=mantissa)
+        axs5.plot(epochs, [v*100 for v in csv_dict[key]['Top5_t'].values()], marker='.', label=x_label)
         axs5.legend()
 
     plt.savefig(cfg.FINAL_RESULTS_DIR + "\\" + f"{cfg.DIR}_Results.png")
 
 
-def plot_best_results(csv_dict, inference=False, gpu=0):
+def plot_best_results(csv_dict, inference=False, gpu=0, layer=False):
 
-    mantissa = ['0', '2', '4', '7', '23']
+    if not layer:
+        value = ['0', '2', '4', '7', '23']
+    else:
+        value = ['0', '1', '2', '3', '4', '5']
 
     if not inference:
         max_dict = {}
@@ -122,7 +135,7 @@ def plot_best_results(csv_dict, inference=False, gpu=0):
                 # best_index = np.argmin(dict_vals) if val == 'Loss_t' or val == 'Loss_l' else np.argmax(dict_vals)
                 # val_dict[val] = (best_val, csv_dict[key]['Epoch'][best_index])
                 val_dict[val] = best_val
-            max_dict[mantissa[i]] = val_dict
+            max_dict[value[i]] = val_dict
         print(pd.DataFrame(max_dict))
         print(max_dict)
 
@@ -151,19 +164,19 @@ def plot_best_results(csv_dict, inference=False, gpu=0):
     # axs0.set_title('Best Loss Convolution Results', size='x-large', weight='bold')
     # axs0.plot(loss_t_dict, marker='.', color='blue')
     # axs0.set_xticks(np.arange(len(loss_t_dict)), x_axis)
-    # axs0.set_xlabel('Mantissa', size='x-large', weight='bold')
+    # axs0.set_xlabel('x_label', size='x-large', weight='bold')
     # axs0.set_ylabel('Loss', size='x-large', weight='bold')
     #
     # axs1.set_title('Best Accuracy Top1 Convolution Results', size='x-large', weight='bold')
     # axs1.plot(top1_t_dict, marker='.', color='blue')
     # axs1.set_xticks(np.arange(len(top1_t_dict)), x_axis)
-    # axs1.set_xlabel('Mantissa', size='x-large', weight='bold')
+    # axs1.set_xlabel('x_label', size='x-large', weight='bold')
     # axs1.set_ylabel('Top1', size='x-large', weight='bold')
     #
     # axs2.set_title('Best Accuracy Top5 Convolution Results', size='x-large', weight='bold')
     # axs2.plot(top5_t_dict, marker='.', color='blue')
     # axs2.set_xticks(np.arange(len(top5_t_dict)), x_axis)
-    # axs2.set_xlabel('Mantissa', size='x-large', weight='bold')
+    # axs2.set_xlabel('x_label', size='x-large', weight='bold')
     # axs2.set_ylabel('Top5', size='x-large', weight='bold')
     #
     # plt.savefig(cfg.FINAL_RESULTS_DIR + "\\" + f"{cfg.EXPERIMENT}_Best_Results.png")
@@ -174,9 +187,10 @@ def plot_best_results(csv_dict, inference=False, gpu=0):
 
 def main():
     csv_dict = load_csv_files(inference=False)
-    print(csv_dict)
-    plot_results(csv_dict)
-    plot_best_results(csv_dict, inference=False)
+    # plot_results(csv_dict)
+    # plot_best_results(csv_dict, inference=False)
+    plot_results(csv_dict, layer=True)
+    plot_best_results(csv_dict, inference=False, layer=True)
 
 
 if __name__ == "__main__":

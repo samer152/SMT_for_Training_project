@@ -67,7 +67,7 @@ class NeuralNet:
         else:
             self.model = cfg.MODELS[self.arch](compute_flavour=compute_flavour, device=device, verbose=verbose)
         self.model = self.model.cuda() if device == 'cuda' else self.model
-        self.model_stats = Model_StatsLogger(compute_flavour, seed, verbose)
+        self.model_stats = Model_StatsLogger(compute_flavour, seed, verbose, layer)
         self.model_optimizer = optim.SGD(self.model.parameters(), lr=LR, weight_decay=WD, momentum=MOMENTUM)
         self.model_train_scheduler = optim.lr_scheduler.MultiStepLR(self.model_optimizer, milestones=MILESTONES, gamma=GAMMA)
         if model_path is not None:

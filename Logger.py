@@ -12,6 +12,7 @@ class Logger:
         self.terminal = sys.stdout
         self.gpus = 1
         self.models_path = None
+        self.layer = None
 
     def write(self, msg, date=True, terminal=True, log_file=True, gpu_num = 0):
         if date:
@@ -34,9 +35,10 @@ class Logger:
         self.write(''.center(pad_width, pad_symbol), terminal=terminal, log_file=log_file, date=False, gpu_num=gpu_num)
         self.write('', date=False, gpu_num=gpu_num)
 
-    def start_new_log(self, path=None, name=None, no_logfile=False, gpus = 1):
+    def start_new_log(self, path=None, name=None, no_logfile=False, gpus = 1, layer=0):
         self.gpus = gpus
         self._create_log_dir(path, name, gpus)
+        self.layer = layer
 
         if no_logfile:
             self.close_log()
@@ -59,9 +61,9 @@ class Logger:
         self.close_log()
         for gpu_num in range(self.gpus):
             if cfg.WINDOWS is True:
-                self.log.append(open("{}\\GPU{}\\logfile.log".format(self.path, gpu_num), "a+"))
+                self.log.append(open("{}\\GPU{}\\logfile_layer_{}.log".format(self.path, gpu_num, self.layer), "a+"))
             else:
-                self.log.append(open("{}/GPU{}/logfile.log".format(self.path, gpu_num), "a+"))
+                self.log.append(open("{}/GPU{}/logfile_layer_{}.log".format(self.path, gpu_num, self.layer), "a+"))
 
     def _create_log_dir(self, path=None, name=None, gpus = 1, create_logs = True):
         if path is None:

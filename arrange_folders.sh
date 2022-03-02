@@ -29,8 +29,8 @@
 #  cd $f
 #  echo $f
 #  for log in $(find . -type f -name '*.log*'); do
-#    echo "mv $log logfile.log"
-#    mv "$log" "logfile.log"
+#    echo "mv $log logfile_layer_5.log"
+#    mv "$log" "logfile_layer_5.log"
 #  done
 #  cd ../../../
 #done

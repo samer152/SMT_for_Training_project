@@ -118,7 +118,7 @@ def train_network(arch, dataset, epochs, batch_size, compute_flavour, seed,
                 len(gpus) > 1 and distributed == 1), 'Error in GPUs numbers in {}Distributed Mode'.format(
         'Non-' if distributed == 0 else '')
     gpus_num = len(gpus) if distributed == 1 else 1
-    cfg.LOG.start_new_log(name=name_str, gpus=gpus_num)
+    cfg.LOG.start_new_log(name=name_str, gpus=gpus_num, layer=layer)
 
     for gpu in range(gpus_num):
         cfg.LOG.write(

@@ -24,7 +24,7 @@ def set_plot_attributes(ax, xticks, yticks, title, xlabel, ylabel):
 
 
 class Model_StatsLogger:
-    def __init__(self, compute_flavour, seed, verbose, _assert=False):
+    def __init__(self, compute_flavour, seed, verbose, _assert=False, layer=0):
 
         self.seed = seed
         self.compute_flavour = compute_flavour
@@ -33,6 +33,7 @@ class Model_StatsLogger:
 
         self.best_top1_acc = 0
         self.best_top1_epoch = 0
+        self.layer = layer
 
         self.print_verbose('Model_StatsLogger __init__() Compute flavour: {}'.format(compute_flavour), 1)
         self.batch_time ={ 'train': self.AverageMeter('Time', ':6.3f'), 'test': self.AverageMeter('Time', ':6.3f')}
@@ -53,7 +54,7 @@ class Model_StatsLogger:
 
     def export_results_stats(self, gpu = 0):
         statistics_path = os.path.dirname(os.path.abspath(cfg.LOG.statistics_path[gpu]))
-        csv_results_file_name = os.path.join(statistics_path, '{}_CM_result.csv'.format(self.compute_flavour))
+        csv_results_file_name = os.path.join(statistics_path, '{}_CM_result_layer_{}.csv'.format(self.compute_flavour, self.layer))
         with open(csv_results_file_name, 'w+', newline='') as csvfile:
             writer = csv.writer(csvfile)
             if len(self.epochs_history['train']) > 0:
