@@ -77,20 +77,22 @@ class Model_StatsLogger:
             global bwd_igrad_dist
             global bwd_wgrad_dist
 
-            csv_dists_file_name = os.path.join(cfg.LOG.statistics_path[gpu], 'matrices_dist_activation.csv')
-            # fwd_file = open(csv_dists_file_name, 'ab')
-            for i in range(0, len(fwd_dist)):
-                np.savetxt(csv_dists_file_name, fwd_dist[i].numpy(), delimiter=',')
-                # np.savetxt(fwd_dist.numpy())
-            # your_file.close()
+            print(fwd_dist[0])
             
-            csv_dists_file_name = os.path.join(cfg.LOG.statistics_path[gpu], 'matrices_dist_igrad.csv')
+            #csv_dists_file_name = os.path.join(cfg.LOG.statistics_path[gpu], 'matrices_dist_activation.csv')
+            #fwd_file = open(csv_dists_file_name, 'ab')
+            #for i in range(0, len(fwd_dist)):
+            #    mat = fwd_dist[i].cpu().detach().numpy()
+            #    np.savetxt(csv_dists_file_name,mat.reshape(mat.shape[0], -1), delimiter=',')
+            #fwd_file.close()
+            
+            csv_dists_file_name = os.path.join(cfg.LOG.statistics_path[gpu], 'matrices_dist_input_grads.csv')
+            bwd_igrad_file = open(csv_dists_file_name, 'ab')
             for i in range(0, len(bwd_igrad_dist)):
-                np.savetxt(csv_dists_file_name, bwd_igrad_dist[i].numpy(), delimiter=',')
-
-            csv_dists_file_name = os.path.join(cfg.LOG.statistics_path[gpu], 'matrices_dist_wgrad.csv')
-            for i in range(0, len(bwd_wgrad_dist)):
-                np.savetxt(csv_dists_file_name, bwd_wgrad_dist[i].numpy(), delimiter=',')
+                mat = bwd_igrad_dist[i].cpu().detach().numpy()
+                np.savetxt(csv_dists_file_name,mat.reshape(mat.shape[0], -1), delimiter=',')
+            bwd_igrad_file.close()
+            
 
     def export_stats(self, gpu= 0, gega = True):
         self.export_results_stats(gpu=gpu)

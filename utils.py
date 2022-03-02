@@ -12,7 +12,22 @@ bwd_igrad_dist = []
 bwd_wgrad_dist = [] 
 str_dist_flag = 0
 
+def set_dist_flag_to_one():
+  global str_dist_flag
+  str_dist_flag = 1
 
+def set_dist_flag_to_zero():
+  global str_dist_flag
+  str_dist_flag = 0
+
+def print_dist_flag():
+  global str_dist_flag
+  print(str_dist_flag)
+  
+def get_dist_flag():
+  global str_dist_flag
+  return (str_dist_flag)
+  
 def Dtype(t):
     if isinstance(t, torch.cuda.FloatTensor):
         return 'float'

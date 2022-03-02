@@ -10,10 +10,11 @@ import torch.distributed as dist
 
 matplotlib.use('Agg')
 import torch
+torch.cuda.memory_summary(device=None, abbreviated=False)
 
 import Config as cfg
 from NeuralNet import NeuralNet
-from utils import str_dist_flag
+from utils import set_dist_flag_to_one, set_dist_flag_to_zero, str_dist_flag, print_dist_flag
 
 parser = argparse.ArgumentParser(description='Samer Kurzum, samer152@gmail.com',
                                  formatter_class=argparse.RawTextHelpFormatter)
@@ -102,7 +103,9 @@ def distributed_training(gpu, net, dataset_, epochs, batch_size, logger_path, se
 def train_network(arch, dataset, epochs, batch_size, compute_flavour, seed,
                   LR, LRD, WD, MOMENTUM, GAMMA, MILESTONES, device, verbose, 
                   distributed, gpus, desc, save_all_states, model_path, hist):
-
+  
+    global str_dist_flag
+  
     if seed is None:
         seed = torch.random.initial_seed() & ((1 << 63) - 1)
     name_str = '{}_{}_training_network'.format(arch, dataset)
@@ -139,12 +142,17 @@ def train_network(arch, dataset, epochs, batch_size, compute_flavour, seed,
         net.update_batch_size(len(train_gen), len(test_gen))
         for epoch in range(0, epochs):
                 #on each 10 epochs store the matrices distributions
-                global str_dist_flag
                 if (epoch%10==0):
-                    str_dist_flag = 1
+                  # print('str_dist_flag = 1')
+                  # str_dist_flag = 1
+                  set_dist_flag_to_one()
+                  print_dist_flag()
+                else:
+                  set_dist_flag_to_zero()
+                
                 net.train(epoch, train_gen)
-                str_dist_flag = 0
                 net.test_set(epoch, test_gen)
+                
 
         # BF16 - export_stats() also plot distributions
         net.export_stats()
