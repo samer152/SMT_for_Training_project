@@ -1,7 +1,7 @@
 import math
 from torch.autograd import Function
 import torch
-from main import bwd_igrad_dist, bwd_wgrad_dist, fwd_dist, str_dist_flag
+from utils import bwd_igrad_dist, bwd_wgrad_dist, fwd_dist, str_dist_flag
 from ConvertType import convert_to_bf16, convert_to_nvtf, convert_to_bf14, convert_to_bf12, convert_to_bf10, convert_to_pxr24, convert_to_bf9
 
 # plot distributions only when using BF16Matmul 

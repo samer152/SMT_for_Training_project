@@ -6,6 +6,12 @@ from string import Template
 
 Stream = namedtuple('Stream', ['ptr'])
 
+# Global arrays to store the matrices values distribution
+fwd_dist = [] 
+bwd_igrad_dist = [] 
+bwd_wgrad_dist = [] 
+str_dist_flag = 0
+
 
 def Dtype(t):
     if isinstance(t, torch.cuda.FloatTensor):

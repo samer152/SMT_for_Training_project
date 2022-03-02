@@ -13,7 +13,7 @@ from models.alexNet import AlexNet
 from models.resnet_cifar import ResNet
 from customConv2d import customConv2d
 # supporting matrices distribution plotting
-from main import bwd_igrad_dist, bwd_wgrad_dist, fwd_dist
+from utils import bwd_igrad_dist, bwd_wgrad_dist, fwd_dist
 
 def set_plot_attributes(ax, xticks, yticks, title, xlabel, ylabel):
     #loss

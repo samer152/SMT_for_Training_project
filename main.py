@@ -13,6 +13,7 @@ import torch
 
 import Config as cfg
 from NeuralNet import NeuralNet
+from utils import str_dist_flag
 
 parser = argparse.ArgumentParser(description='Samer Kurzum, samer152@gmail.com',
                                  formatter_class=argparse.RawTextHelpFormatter)
@@ -61,12 +62,6 @@ parser.add_argument('--model_path', default=None, help='model path to load')
 parser.add_argument('--v', default=0, type=int, help='verbosity level (0,1,2) (default:0)')
 parser.add_argument('--hist', default=0,
                     help='Choose whether to plot weights histograms')
-
-# Global arrays to store the matrices values distribution
-fwd_dist = [] 
-bwd_igrad_dist = [] 
-bwd_wgrad_dist = [] 
-str_dist_flag = 0
 
 def distributed_training(gpu, net, dataset_, epochs, batch_size, logger_path, seed):
     rank = gpu
