@@ -1,0 +1,6 @@
+[2022-03-01_17-38-50] main.py --action TRAINING --arch resnet18-cifar100 --epoch 200 --batch_size 128 --seed 345 --compute_flavour 2 --v 1 --WD 5e-6 --GAMMA 0.1 --MOMENTUM 0.5 --distributed 0 --gpu 1 --layer 0
+
+[2022-03-01_17-38-50] arch=resnet18, dataset=cifar100, desc=None, flavour=2, epochs=200, batch_size=128, LR=0.1, LRD=0, WD=5e-06, MOMENTUM=0.5, GAMMA=0.1, MILESTONES=[60, 120, 160], device=cuda, verbose=1, model_path=None, action=TRAINING
+[2022-03-01_17-38-50] Seed = 345
+[2022-03-01_17-38-50] NeuralNet __init__: arch=resnet18, dataset=cifar100 compute_flavour=2, epochs=200,LR=0.1 LRD=0 WD=5e-06 MOMENTUM=0.5 GAMMA=0.1 MILESTONES=[60, 120, 160] device=cuda verbose=1 gpus=1 distributed=0 model_path=None
+[2022-03-01_17-38-50] Seed = 345
