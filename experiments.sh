@@ -5,7 +5,7 @@
 #
 echo "Backward"
 echo "Baseline - Mantissa 23"
-python3 main.py --action TRAINING --arch resnet18-cifar100 --epoch 200 --batch_size 128 --seed 345 --compute_flavour 0 --v 1  --WD 5e-6 --GAMMA 0.1 --MOMENTUM 0.5 --distributed 0 --gpu 0
+#python3 main.py --action TRAINING --arch resnet18-cifar100 --epoch 200 --batch_size 128 --seed 345 --compute_flavour 0 --v 1  --WD 5e-6 --GAMMA 0.1 --MOMENTUM 0.5 --distributed 0 --gpu 0
 
 #echo "Mantissa 7"
 #python3 main.py --action TRAINING --arch resnet18-cifar100 --epoch 200 --batch_size 128 --seed 345 --compute_flavour 4 --v 1  --WD 5e-6 --GAMMA 0.1 --MOMENTUM 0.5 --distributed 0 --gpu 1
