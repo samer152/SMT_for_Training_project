@@ -198,7 +198,6 @@ def main():
     cfg.DIR = args.dir
     cfg.RESULTS_DIR = os.path.join(cfg.basedir, f'{args.dir}_results')
     cfg.DATASET_DIR = os.path.join(cfg.basedir, 'datasets')
-    cfg.DATASET_DIR_IMAGENET = '/mnt/ilsvrc2012'
     cfg.FINAL_RESULTS_DIR = os.path.join(cfg.basedir, f'{args.dir}_results')
 
     if args.action == 'TRAINING' or args.action == 'TESTING':
