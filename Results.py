@@ -9,6 +9,9 @@ from matplotlib.ticker import PercentFormatter
 
 def load_csv_files(inference=False):
     path = cfg.FINAL_RESULTS_DIR
+    if cfg.WINDOWS is True and os.sep == '\\' and '\\\\?\\' not in path:
+        path = '\\\\?\\' + path
+
     csv_files = glob.glob(os.path.join(path, "**\\*.csv"), recursive=True)
 
     csv_dict = {}
@@ -61,7 +64,7 @@ def plot_results(csv_dict, gpu=0, layer=False):
     fig.tight_layout(pad=8)
 
     if layer is False:
-        # x_label
+        # Mantissa
         x_list = [23, 0, 2, 4, 7]
     else:
         # Layer

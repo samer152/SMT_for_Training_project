@@ -22,6 +22,13 @@ model_names = ['lenet5-cifar10',
                'resnet18-imagenet'
                ]
 
+exp_names = [
+    'normal',
+    'backward',
+    'forward',
+    'inference'
+]
+
 parser.add_argument('-a', '--arch', metavar='ARCH', choices=model_names, required=False,
                     help='model architectures and datasets:\n' + ' | '.join(model_names))
 parser.add_argument('--action', default='TRAINING', choices=['TRAINING', 'TESTING'], required=True,
@@ -35,6 +42,10 @@ parser.add_argument('--device', choices=['cpu', 'cuda'], default='cuda',
                     help='device to run on')
 parser.add_argument('--layer', default=0, type=int,
                     help='layer to reduce representation. if 0 - all layers')
+parser.add_argument('--exp', choices=exp_names, required=True,
+                    help='experiments:\n' + ' | '.join(exp_names))
+parser.add_argument('--dir',  default=None,
+                    help='directory to save results')
 parser.add_argument('--LR', default=0.1, type=float,
                     help='starting learning rate')
 parser.add_argument('--LRD', default=0, type=int,
@@ -183,6 +194,8 @@ def main():
         math.log2(args.batch_size)), 'Error: Implementation supports only batch size which is 2^x'
 
     cfg.USER_CMD = ' '.join(sys.argv)
+    cfg.EXPERIMENT = args.exp
+    cfg.DIR = args.dir
 
     if args.action == 'TRAINING' or args.action == 'TESTING':
         assert (args.arch is not None), "Please provide an ARCH name to execute training on"
