@@ -152,7 +152,7 @@ class ResNet(nn.Module):
         self.base_width = width_per_group
         # TODO: changed for CIFAR100 (from original Imagenet parameters)
 
-        first_conv_custom = True if layer == 5 or layer == 0 or layer == 6 else False
+        first_conv_custom = True if layer == 5 or layer == 0 else False
         self.conv1 = customConv2d(3, self.inplanes, kernel_size=3, stride=1, padding=1, bias=False,
                                   compute_flavour=self.compute_flavour,
                                   device=self.device, verbose=self.verbose) if first_conv_custom else \
@@ -175,7 +175,7 @@ class ResNet(nn.Module):
         elif layer == 5:
             custom_1, custom_2, custom_3, custom_4 = False, False, False, False
         elif layer == 6:
-            custom_1, custom_2, custom_3, custom_4 = True, True, True, False
+            custom_1, custom_2, custom_3, custom_4 = True, True, True, True
 
         self.layer1 = self._make_layer(block, 64, layers[0], compute_flavour=self.compute_flavour, custom=custom_1)
         self.layer2 = self._make_layer(block, 128, layers[1], stride=2,

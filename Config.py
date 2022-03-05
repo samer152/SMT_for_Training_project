@@ -28,7 +28,7 @@ BATCH_SIZE = 128
 RESULTS_DIR = os.path.join(basedir, f'{DIR}_results')
 DATASET_DIR = os.path.join(basedir, 'datasets')
 DATASET_DIR_IMAGENET = '/mnt/ilsvrc2012'
-FINAL_RESULTS_DIR = os.path.join(basedir, f'{DIR}_results')
+FINAL_RESULTS_DIR = os.path.join(basedir, f'layers_results\\mantissa_2')
 
 
 # ------------------------------------------------

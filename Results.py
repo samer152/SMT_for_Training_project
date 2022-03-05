@@ -43,7 +43,7 @@ def set_plot_attributes(ax, xticks, yticks, title, xlabel, ylabel):
 
 
 def plot_results(csv_dict, gpu=0, layer=False):
-    num_points = 200
+    num_points = 150
     epochs = np.arange(0, num_points)
     if num_points + 1 > 120:
         xticks = np.arange(0, num_points + 10, 10)
@@ -68,49 +68,50 @@ def plot_results(csv_dict, gpu=0, layer=False):
         x_list = [23, 0, 2, 4, 7]
     else:
         # Layer
-        x_list = [0, 1, 2, 3, 4, 5]
+        x_list = ['baseline', 'first + layers 1,2,3', 'layer 1', 'layer 2', 'layer 3', 'layer 4', 'first conv']
 
-    for key in csv_dict.keys():
+    for i, key in enumerate(csv_dict.keys()):
 
         if layer is False:
             # Compute flavour
             index = int(key.split("_")[0])
+            x_label = x_list[index]
         else:
-            index = int(key.split("_")[-1][:-4])
-        x_label = x_list[index]
+            print(key, x_list[i])
+            x_label = x_list[i]
 
         # loss train
         set_plot_attributes(axs0, xticks, yticks_loss, 'Loss Train', 'Epoch', 'Loss')
-        axs0.plot(epochs, csv_dict[key]['Loss_l'].values(), marker='.', label=x_label)
+        axs0.plot(epochs, list(csv_dict[key]['Loss_l'].values())[:num_points], marker='.', label=x_label)
         axs0.legend()
 
         # top1 train
         set_plot_attributes(axs1, xticks, yticks_top1, 'Accuracy Top1 Train', 'Epoch', 'Accuracy')
         axs1.yaxis.set_major_formatter(PercentFormatter())
-        axs1.plot(epochs, [v*100 for v in csv_dict[key]['Top1_l'].values()], marker='.', label=x_label)
+        axs1.plot(epochs, [v*100 for i, v in enumerate(csv_dict[key]['Top1_l'].values()) if i < num_points], marker='.', label=x_label)
         axs1.legend()
 
         # top5 train
         set_plot_attributes(axs2, xticks, yticks_top5, 'Accuracy Top5 Train', 'Epoch', 'Accuracy')
         axs2.yaxis.set_major_formatter(PercentFormatter())
-        axs2.plot(epochs, [v*100 for v in csv_dict[key]['Top5_l'].values()], marker='.', label=x_label)
+        axs2.plot(epochs, [v*100 for i,v in enumerate(csv_dict[key]['Top5_l'].values()) if i < num_points], marker='.', label=x_label)
         axs2.legend()
 
         # loss test
         set_plot_attributes(axs3, xticks, yticks_loss, 'Loss Test', 'Epoch', 'Loss')
-        axs3.plot(epochs, csv_dict[key]['Loss_t'].values(), marker='.', label=x_label)
+        axs3.plot(epochs, list(csv_dict[key]['Loss_t'].values())[:num_points], marker='.', label=x_label)
         axs3.legend()
 
         # top1 test
         set_plot_attributes(axs4, xticks, yticks_top1, 'Accuracy Top1 Test', 'Epoch', 'Accuracy')
         axs4.yaxis.set_major_formatter(PercentFormatter())
-        axs4.plot(epochs, [v*100 for v in csv_dict[key]['Top1_t'].values()], marker='.', label=x_label)
+        axs4.plot(epochs, [v*100 for i,v in enumerate(csv_dict[key]['Top1_t'].values()) if i < num_points], marker='.', label=x_label)
         axs4.legend()
 
         # top5 test
         set_plot_attributes(axs5, xticks, yticks_top5, 'Accuracy Top5 Test', 'Epoch', 'Accuracy')
         axs5.yaxis.set_major_formatter(PercentFormatter())
-        axs5.plot(epochs, [v*100 for v in csv_dict[key]['Top5_t'].values()], marker='.', label=x_label)
+        axs5.plot(epochs, [v*100 for i,v in enumerate(csv_dict[key]['Top5_t'].values()) if i < num_points], marker='.', label=x_label)
         axs5.legend()
 
     plt.savefig(cfg.FINAL_RESULTS_DIR + "\\" + f"{cfg.DIR}_Results.png")
@@ -121,12 +122,13 @@ def plot_best_results(csv_dict, inference=False, gpu=0, layer=False):
     if not layer:
         value = ['0', '2', '4', '7', '23']
     else:
-        value = ['0', '1', '2', '3', '4', '5']
+        value = ['baseline', 'first + layers 1,2,3', 'layer 1', 'layer 2', 'layer 3', 'layer 4', 'first conv']
 
     if not inference:
         max_dict = {}
         keys = list(csv_dict.keys())
-        keys = np.roll(keys, -1)
+        if layer is False:
+            keys = np.roll(keys, -1)
 
         for i, key in enumerate(keys):
             val_dict = {}
@@ -192,6 +194,7 @@ def main():
     csv_dict = load_csv_files(inference=False)
     # plot_results(csv_dict)
     # plot_best_results(csv_dict, inference=False)
+    # print(pd.DataFrame(csv_dict))
     plot_results(csv_dict, layer=True)
     plot_best_results(csv_dict, inference=False, layer=True)
 
