@@ -120,7 +120,7 @@ def plot_results(csv_dict, gpu=0, layer=False):
 def plot_best_results(csv_dict, inference=False, gpu=0, layer=False):
 
     if not layer:
-        value = ['0', '2', '4', '7', '23']
+        value = ['0', '2', '23']
     else:
         value = ['baseline', 'first + layers 1,2,3', 'layer 1', 'layer 2', 'layer 3', 'layer 4', 'first conv']
 
@@ -192,11 +192,11 @@ def plot_best_results(csv_dict, inference=False, gpu=0, layer=False):
 
 def main():
     csv_dict = load_csv_files(inference=False)
-    # plot_results(csv_dict)
-    # plot_best_results(csv_dict, inference=False)
+    plot_results(csv_dict)
+    plot_best_results(csv_dict, inference=False)
     # print(pd.DataFrame(csv_dict))
-    plot_results(csv_dict, layer=True)
-    plot_best_results(csv_dict, inference=False, layer=True)
+    # plot_results(csv_dict, layer=True)
+    # plot_best_results(csv_dict, inference=False, layer=True)
 
 
 if __name__ == "__main__":

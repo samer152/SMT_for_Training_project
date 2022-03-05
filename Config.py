@@ -9,7 +9,7 @@ from models.resnet_imagenet import resNet18_imagenet
 basedir, _ = os.path.split(os.path.abspath(__file__))
 basedir = os.path.join(basedir, 'data')
 
-WINDOWS = False
+WINDOWS = True
 EXPERIMENT = ''
 DIR = ''
 
@@ -28,7 +28,7 @@ BATCH_SIZE = 128
 RESULTS_DIR = os.path.join(basedir, f'{DIR}_results')
 DATASET_DIR = os.path.join(basedir, 'datasets')
 DATASET_DIR_IMAGENET = '/mnt/ilsvrc2012'
-FINAL_RESULTS_DIR = os.path.join(basedir, f'layers_results\\mantissa_2')
+FINAL_RESULTS_DIR = os.path.join(basedir, f'backward_results')
 
 
 # ------------------------------------------------
