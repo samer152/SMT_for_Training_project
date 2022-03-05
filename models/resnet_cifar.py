@@ -4,11 +4,12 @@ import torch.nn as nn
 from customConv2d import customConv2d
 from utils import load_state_dict_from_url
 
-__all__ = ['ResNet', 'resnet18']
+__all__ = ['ResNet', 'resnet18', 'resnet50']
 
 
 model_urls = {
     'resnet18': 'https://download.pytorch.org/models/resnet18-5c106cde.pth',
+    'resnet50': 'https://download.pytorch.org/models/resnet50-19c8e357.pth',
 }
 
 
@@ -247,7 +248,16 @@ def resnet18(pretrained=False, progress=True, **kwargs):
     return _resnet('resnet18', BasicBlock, [2, 2, 2, 2], pretrained, progress,
                    **kwargs)
 
+def resnet50(pretrained=False, progress=True, **kwargs):
+    r"""ResNet-50 model from
+    `"Deep Residual Learning for Image Recognition" <https://arxiv.org/pdf/1512.03385.pdf>`_
 
+    Args:
+        pretrained (bool): If True, returns a model pre-trained on ImageNet
+        progress (bool): If True, displays a progress bar of the download to stderr
+    """
+    return _resnet('resnet50', Bottleneck, [3, 4, 6, 3], pretrained, progress,
+                   **kwargs)
 
 #resnet18
 def resNet18_cifar10(compute_flavour, device, verbose):
@@ -255,6 +265,13 @@ def resNet18_cifar10(compute_flavour, device, verbose):
 
 def resNet18_cifar100(compute_flavour, device, verbose):
     return resnet18(compute_flavour=compute_flavour, device=device, verbose=verbose, num_classes=100)
+
+#resnet50
+def resNet50_cifar10(compute_flavour, device, verbose):
+    return resnet50(compute_flavour=compute_flavour, device=device, verbose=verbose, num_classes=10)
+
+def resNet50_cifar100(compute_flavour, device, verbose):
+    return resnet50(compute_flavour=compute_flavour, device=device, verbose=verbose, num_classes=100)
 
 ###
 ###   resnet18 asymmetric

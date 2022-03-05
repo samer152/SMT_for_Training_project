@@ -24,7 +24,8 @@ model_names = ['lenet5-cifar10',
                'alexnetAsym-cifar100',
                'resnet18-cifar100',
                'resnet18Asym-cifar100',
-               'resnet18-imagenet'
+               'resnet18-imagenet',
+               'resnet50-cifar100',
                ]
 
 parser.add_argument('-a', '--arch', metavar='ARCH', choices=model_names, required=False,
