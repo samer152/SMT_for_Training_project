@@ -12,8 +12,6 @@ import Config as cfg
 from models.alexNet import AlexNet
 from models.resnet_cifar import ResNet
 from customConv2d import customConv2d
-# supporting matrices distribution plotting
-from utils import bwd_igrad_dist, bwd_wgrad_dist, fwd_dist
 
 def set_plot_attributes(ax, xticks, yticks, title, xlabel, ylabel):
     #loss
@@ -70,29 +68,7 @@ class Model_StatsLogger:
                                 self.top5_history['train'][i]/100,
                                 self.loss_history['test'][i],
                                 self.top1_history['test'][i]/100,
-                                self.top5_history['test'][i]/100])
-        
-        if (self.compute_flavour==2):
-            global fwd_dist
-            global bwd_igrad_dist
-            global bwd_wgrad_dist
-
-            print(fwd_dist[0])
-            
-            #csv_dists_file_name = os.path.join(cfg.LOG.statistics_path[gpu], 'matrices_dist_activation.csv')
-            #fwd_file = open(csv_dists_file_name, 'ab')
-            #for i in range(0, len(fwd_dist)):
-            #    mat = fwd_dist[i].cpu().detach().numpy()
-            #    np.savetxt(csv_dists_file_name,mat.reshape(mat.shape[0], -1), delimiter=',')
-            #fwd_file.close()
-            
-            csv_dists_file_name = os.path.join(cfg.LOG.statistics_path[gpu], 'matrices_dist_input_grads.csv')
-            bwd_igrad_file = open(csv_dists_file_name, 'ab')
-            for i in range(0, len(bwd_igrad_dist)):
-                mat = bwd_igrad_dist[i].cpu().detach().numpy()
-                np.savetxt(csv_dists_file_name,mat.reshape(mat.shape[0], -1), delimiter=',')
-            bwd_igrad_file.close()
-            
+                                self.top5_history['test'][i]/100])    
 
     def export_stats(self, gpu= 0, gega = True):
         self.export_results_stats(gpu=gpu)
@@ -147,29 +123,6 @@ class Model_StatsLogger:
         plt.savefig(os.path.join(graphs_path,'{}_CM_result.png'.format(self.compute_flavour)))
 
         plt.close()
-
-    def plot_weights_hist(self, net, gpu = 0):
-        #AlexNet has 5 conv layers
-        if(type(AlexNet)==type(net)):
-            fig, (axs0, axs1, axs2, axs3, axs4) = plt.subplots(5, 1)
-            axs = [axs0, axs1, axs2, axs3, axs4]
-            fig.suptitle('{} CM Convolution Weights Histogram'.format(self.compute_flavour), size='x-large', weight='bold')
-            fig.tight_layout(pad=8)
-            i = 0
-            for m in net.features():
-                if type(m) == customConv2d:
-                    conv_num = 'conv'+str(i)
-                    axs[i].hist(x=torch.flatten(m.weight.detach()).cpu(), bins='auto', alpha=0.7, rwidth=0.85)
-                    axs[i].grid(axis='y', alpha=0.75)
-                    axs[i].xlabel('Weights')
-                    axs[i].ylabel('Num of shows')
-                    axs[i].title(f'{conv_num} - Weights Histogram')
-                    i = i + 1 
-            graphs_path = os.path.join(cfg.LOG.graph_path[gpu], '{}_CM_Conv'.format(self.compute_flavour))
-            plt.savefig(os.path.join(graphs_path,'{}_CM_Weights_Dist.png'.format(self.compute_flavour)))
-
-            plt.close()
-
 
     def print_verbose(self, msg, v):
         if self.verbose >= v:

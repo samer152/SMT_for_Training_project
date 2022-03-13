@@ -14,7 +14,6 @@ torch.cuda.memory_summary(device=None, abbreviated=False)
 
 import Config as cfg
 from NeuralNet import NeuralNet
-from utils import set_dist_flag_to_one, set_dist_flag_to_zero, str_dist_flag, print_dist_flag
 
 parser = argparse.ArgumentParser(description='Samer Kurzum, samer152@gmail.com',
                                  formatter_class=argparse.RawTextHelpFormatter)
@@ -142,20 +141,9 @@ def train_network(arch, dataset, epochs, batch_size, compute_flavour, seed,
         (train_gen, _), (_, _) = dataset_.trainset(batch_size=batch_size, max_samples=None, random_seed=16)
         net.update_batch_size(len(train_gen), len(test_gen))
         for epoch in range(0, epochs):
-                #on each 10 epochs store the matrices distributions
-                if (epoch%10==0):
-                  # print('str_dist_flag = 1')
-                  # str_dist_flag = 1
-                  set_dist_flag_to_one()
-                  print_dist_flag()
-                else:
-                  set_dist_flag_to_zero()
-                
                 net.train(epoch, train_gen)
                 net.test_set(epoch, test_gen)
                 
-
-        # BF16 - export_stats() also plot distributions
         net.export_stats()
         net.plot_results()
         if(hist):
