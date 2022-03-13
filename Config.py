@@ -3,7 +3,7 @@ from Logger import Logger
 from Datasets import Datasets
 from models.leNet5 import leNet_cifar10, leNet_cifar100
 from models.alexNet import alexNet_cifar10, alexNet_cifar100, alexnetAsym_cifar100
-from models.resnet_cifar import resNet18_cifar100, resnet18Asym_cifar100, resNet50_cifar100
+from models.resnet_cifar import resNet18_cifar100, resnet18_asym_cifar100, resNet50_cifar100, resnet50_asym_cifar100
 from models.resnet_imagenet import resNet18_imagenet
 
 basedir, _ = os.path.split(os.path.abspath(__file__))
@@ -15,7 +15,8 @@ MODELS = {'lenet5_cifar10': leNet_cifar10,
           'alexnetAsym_cifar100': alexnetAsym_cifar100,
           'resnet18_cifar100': resNet18_cifar100,
           'resnet50_cifar100': resNet50_cifar100,
-          'resnet18Asym_cifar100': resnet18Asym_cifar100,
+          'resnet18_asym_cifar100': resnet18_asym_cifar100,
+          'resnet50_asym_cifar100': resnet50_asym_cifar100,
           'resnet18_imagenet': resNet18_imagenet,
           }
 

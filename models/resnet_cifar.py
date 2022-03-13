@@ -318,7 +318,7 @@ class ResNetAsym(nn.Module):
         self.layer3 = self._make_layer(block, 256, layers[2], stride=2,
                                        dilate=replace_stride_with_dilation[1], compute_flavour=self.compute_flavour)
         self.layer4 = self._make_layer(block, 512, layers[3], stride=2,
-                                       dilate=replace_stride_with_dilation[2], compute_flavour=0)
+                                       dilate=replace_stride_with_dilation[2], compute_flavour=self.compute_flavour)
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
         self.fc = nn.Linear(512 * block.expansion, num_classes)
 
@@ -395,7 +395,7 @@ def _resnet_asym(arch, block, layers, pretrained, progress, **kwargs):
     return model
 
 
-def resnet18Asym(pretrained=False, progress=True, **kwargs):
+def resnet18_asym(pretrained=False, progress=True, **kwargs):
     r"""ResNet-18 model from
     `"Deep Residual Learning for Image Recognition" <https://arxiv.org/pdf/1512.03385.pdf>`_
 
@@ -406,5 +406,19 @@ def resnet18Asym(pretrained=False, progress=True, **kwargs):
     return _resnet_asym('resnet18', BasicBlock, [2, 2, 2, 2], pretrained, progress,
                    **kwargs)
 
-def resnet18Asym_cifar100(compute_flavour, device, verbose):
-    return resnet18Asym(compute_flavour=compute_flavour, device=device, verbose=verbose, num_classes=100)
+def resnet50_asym(pretrained=False, progress=True, **kwargs):
+    r"""ResNet-50 model from
+    `"Deep Residual Learning for Image Recognition" <https://arxiv.org/pdf/1512.03385.pdf>`_
+
+    Args:
+        pretrained (bool): If True, returns a model pre-trained on ImageNet
+        progress (bool): If True, displays a progress bar of the download to stderr
+    """
+    return _resnet_asym('resnet50', Bottleneck, [3, 4, 6, 3], pretrained, progress,
+                   **kwargs)
+
+def resnet18_asym_cifar100(compute_flavour, device, verbose):
+    return resnet18_asym(compute_flavour=compute_flavour, device=device, verbose=verbose, num_classes=100)
+
+def resnet50_asym_cifar100(compute_flavour, device, verbose):
+    return resnet50_asym(compute_flavour=compute_flavour, device=device, verbose=verbose, num_classes=100)
