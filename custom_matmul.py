@@ -11,6 +11,7 @@ from SpecialMatmul_fwd import BF9Matmul_fwd, BF10Matmul_fwd
 from SpecialMatmul_bwd_igrad import BF9Matmul_bwd_igrad, BF10Matmul_bwd_igrad
 from SpecialMatmul_bwd_wgrad import BF9Matmul_bwd_wgrad, BF10Matmul_bwd_wgrad
 from SpecialMatmul_ingradsBF14 import BF14Matmul_ingrad_sym, BF14Matmul_ingrad_asym_grad_output, BF14Matmul_ingrad_asym_weights
+from SpecialMatmul_ingradsBF16_BF9 import BF16Matmul_ingrad_sym, BF16Matmul_ingrad_asym_grad_output, BF16Matmul_ingrad_asym_weights
 
 from utils import Dtype, Stream, load_kernel, Dtype_size
 
@@ -92,6 +93,15 @@ def custom_matmul(input, weight, compute_flavour):
     elif compute_flavour == 32:
         # BF14Matmul_ingrad_asym_weights
         return BF14Matmul_ingrad_asym_weights.apply(input, weight)
+    elif compute_flavour == 33:
+        # BF16Matmul_ingrad_sym
+        return BF16Matmul_ingrad_sym.apply(input, weight)
+    elif compute_flavour == 34:
+        # BF16Matmul_ingrad_asym_grad_output
+        return BF16Matmul_ingrad_asym_grad_output.apply(input, weight)
+    elif compute_flavour == 35:
+        # BF16Matmul_ingrad_asym_weights
+        return BF16Matmul_ingrad_asym_weights.apply(input, weight)
     else:
         raise NotImplementedError
 
